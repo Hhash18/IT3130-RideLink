@@ -3,6 +3,7 @@ package com.ridelink.drivervehicle.service;
 import com.ridelink.drivervehicle.dto.VehicleRequest;
 import com.ridelink.drivervehicle.dto.VehicleResponse;
 import com.ridelink.drivervehicle.entity.Vehicle;
+import com.ridelink.drivervehicle.exception.VehicleNotFoundException;
 import com.ridelink.drivervehicle.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,9 @@ public class VehicleService {
 
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Vehicle not found with id: " + id));
+                        new VehicleNotFoundException(
+                                "Vehicle not found with id: " + id
+                        ));
 
         return mapToResponse(vehicle);
     }
@@ -38,22 +41,30 @@ public class VehicleService {
 
         Vehicle vehicle = new Vehicle();
 
-        vehicle.setRegistrationNumber(request.getRegistrationNumber());
+        vehicle.setRegistrationNumber(
+                request.getRegistrationNumber()
+        );
         vehicle.setType(request.getType());
         vehicle.setModel(request.getModel());
         vehicle.setCapacity(request.getCapacity());
         vehicle.setStatus(request.getStatus());
 
-        Vehicle savedVehicle = vehicleRepository.save(vehicle);
+        Vehicle savedVehicle =
+                vehicleRepository.save(vehicle);
 
         return mapToResponse(savedVehicle);
     }
 
-    public VehicleResponse updateVehicle(Long id, VehicleRequest request) {
+    public VehicleResponse updateVehicle(
+            Long id,
+            VehicleRequest request) {
 
-        Vehicle existingVehicle = vehicleRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Vehicle not found with id: " + id));
+        Vehicle existingVehicle =
+                vehicleRepository.findById(id)
+                        .orElseThrow(() ->
+                                new VehicleNotFoundException(
+                                        "Vehicle not found with id: " + id
+                                ));
 
         existingVehicle.setRegistrationNumber(
                 request.getRegistrationNumber()
@@ -63,7 +74,8 @@ public class VehicleService {
         existingVehicle.setCapacity(request.getCapacity());
         existingVehicle.setStatus(request.getStatus());
 
-        Vehicle updatedVehicle = vehicleRepository.save(existingVehicle);
+        Vehicle updatedVehicle =
+                vehicleRepository.save(existingVehicle);
 
         return mapToResponse(updatedVehicle);
     }
@@ -72,7 +84,9 @@ public class VehicleService {
 
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Vehicle not found with id: " + id));
+                        new VehicleNotFoundException(
+                                "Vehicle not found with id: " + id
+                        ));
 
         vehicleRepository.delete(vehicle);
     }

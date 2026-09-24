@@ -3,6 +3,7 @@ package com.ridelink.drivervehicle.service;
 import com.ridelink.drivervehicle.dto.DriverRequest;
 import com.ridelink.drivervehicle.dto.DriverResponse;
 import com.ridelink.drivervehicle.entity.Driver;
+import com.ridelink.drivervehicle.exception.DriverNotFoundException;
 import com.ridelink.drivervehicle.repository.DriverRepository;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +30,9 @@ public class DriverService {
 
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Driver not found with id: " + id));
+                        new DriverNotFoundException(
+                                "Driver not found with id: " + id
+                        ));
 
         return mapToResponse(driver);
     }
@@ -49,11 +52,15 @@ public class DriverService {
         return mapToResponse(savedDriver);
     }
 
-    public DriverResponse updateDriver(Long id, DriverRequest request) {
+    public DriverResponse updateDriver(
+            Long id,
+            DriverRequest request) {
 
         Driver existingDriver = driverRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Driver not found with id: " + id));
+                        new DriverNotFoundException(
+                                "Driver not found with id: " + id
+                        ));
 
         existingDriver.setName(request.getName());
         existingDriver.setLicenseNumber(request.getLicenseNumber());
@@ -61,7 +68,8 @@ public class DriverService {
         existingDriver.setEmail(request.getEmail());
         existingDriver.setStatus(request.getStatus());
 
-        Driver updatedDriver = driverRepository.save(existingDriver);
+        Driver updatedDriver =
+                driverRepository.save(existingDriver);
 
         return mapToResponse(updatedDriver);
     }
@@ -70,7 +78,9 @@ public class DriverService {
 
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Driver not found with id: " + id));
+                        new DriverNotFoundException(
+                                "Driver not found with id: " + id
+                        ));
 
         driverRepository.delete(driver);
     }
