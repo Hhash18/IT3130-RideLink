@@ -1,6 +1,7 @@
 package com.ridelink.drivervehicle.controller;
 
-import com.ridelink.drivervehicle.entity.Vehicle;
+import com.ridelink.drivervehicle.dto.VehicleRequest;
+import com.ridelink.drivervehicle.dto.VehicleResponse;
 import com.ridelink.drivervehicle.service.VehicleService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -20,12 +21,15 @@ public class VehicleController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Vehicle>> getAllVehicles() {
-        return ResponseEntity.ok(vehicleService.getAllVehicles());
+    public ResponseEntity<List<VehicleResponse>> getAllVehicles() {
+
+        return ResponseEntity.ok(
+                vehicleService.getAllVehicles()
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Vehicle> getVehicleById(
+    public ResponseEntity<VehicleResponse> getVehicleById(
             @PathVariable Long id) {
 
         return ResponseEntity.ok(
@@ -34,10 +38,11 @@ public class VehicleController {
     }
 
     @PostMapping
-    public ResponseEntity<Vehicle> createVehicle(
-            @Valid @RequestBody Vehicle vehicle) {
+    public ResponseEntity<VehicleResponse> createVehicle(
+            @Valid @RequestBody VehicleRequest request) {
 
-        Vehicle createdVehicle = vehicleService.createVehicle(vehicle);
+        VehicleResponse createdVehicle =
+                vehicleService.createVehicle(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -45,12 +50,12 @@ public class VehicleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Vehicle> updateVehicle(
+    public ResponseEntity<VehicleResponse> updateVehicle(
             @PathVariable Long id,
-            @Valid @RequestBody Vehicle vehicle) {
+            @Valid @RequestBody VehicleRequest request) {
 
         return ResponseEntity.ok(
-                vehicleService.updateVehicle(id, vehicle)
+                vehicleService.updateVehicle(id, request)
         );
     }
 

@@ -1,6 +1,7 @@
 package com.ridelink.drivervehicle.controller;
 
-import com.ridelink.drivervehicle.entity.Driver;
+import com.ridelink.drivervehicle.dto.DriverRequest;
+import com.ridelink.drivervehicle.dto.DriverResponse;
 import com.ridelink.drivervehicle.service.DriverService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -20,20 +21,28 @@ public class DriverController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Driver>> getAllDrivers() {
-        return ResponseEntity.ok(driverService.getAllDrivers());
+    public ResponseEntity<List<DriverResponse>> getAllDrivers() {
+
+        return ResponseEntity.ok(
+                driverService.getAllDrivers()
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Driver> getDriverById(@PathVariable Long id) {
-        return ResponseEntity.ok(driverService.getDriverById(id));
+    public ResponseEntity<DriverResponse> getDriverById(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                driverService.getDriverById(id)
+        );
     }
 
     @PostMapping
-    public ResponseEntity<Driver> createDriver(
-            @Valid @RequestBody Driver driver) {
+    public ResponseEntity<DriverResponse> createDriver(
+            @Valid @RequestBody DriverRequest request) {
 
-        Driver createdDriver = driverService.createDriver(driver);
+        DriverResponse createdDriver =
+                driverService.createDriver(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -41,12 +50,12 @@ public class DriverController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Driver> updateDriver(
+    public ResponseEntity<DriverResponse> updateDriver(
             @PathVariable Long id,
-            @Valid @RequestBody Driver driver) {
+            @Valid @RequestBody DriverRequest request) {
 
         return ResponseEntity.ok(
-                driverService.updateDriver(id, driver)
+                driverService.updateDriver(id, request)
         );
     }
 
