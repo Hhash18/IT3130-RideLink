@@ -22,10 +22,7 @@ public class DriverController {
 
     @GetMapping
     public ResponseEntity<List<DriverResponse>> getAllDrivers() {
-
-        return ResponseEntity.ok(
-                driverService.getAllDrivers()
-        );
+        return ResponseEntity.ok(driverService.getAllDrivers());
     }
 
     @GetMapping("/{id}")
@@ -39,10 +36,10 @@ public class DriverController {
 
     @PostMapping
     public ResponseEntity<DriverResponse> createDriver(
-            @Valid @RequestBody DriverRequest request) {
+            @Valid @RequestBody DriverRequest driverRequest) {
 
         DriverResponse createdDriver =
-                driverService.createDriver(request);
+                driverService.createDriver(driverRequest);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -52,10 +49,10 @@ public class DriverController {
     @PutMapping("/{id}")
     public ResponseEntity<DriverResponse> updateDriver(
             @PathVariable Long id,
-            @Valid @RequestBody DriverRequest request) {
+            @Valid @RequestBody DriverRequest driverRequest) {
 
         return ResponseEntity.ok(
-                driverService.updateDriver(id, request)
+                driverService.updateDriver(id, driverRequest)
         );
     }
 

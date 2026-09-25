@@ -22,10 +22,7 @@ public class VehicleController {
 
     @GetMapping
     public ResponseEntity<List<VehicleResponse>> getAllVehicles() {
-
-        return ResponseEntity.ok(
-                vehicleService.getAllVehicles()
-        );
+        return ResponseEntity.ok(vehicleService.getAllVehicles());
     }
 
     @GetMapping("/{id}")
@@ -39,10 +36,10 @@ public class VehicleController {
 
     @PostMapping
     public ResponseEntity<VehicleResponse> createVehicle(
-            @Valid @RequestBody VehicleRequest request) {
+            @Valid @RequestBody VehicleRequest vehicleRequest) {
 
         VehicleResponse createdVehicle =
-                vehicleService.createVehicle(request);
+                vehicleService.createVehicle(vehicleRequest);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -52,10 +49,10 @@ public class VehicleController {
     @PutMapping("/{id}")
     public ResponseEntity<VehicleResponse> updateVehicle(
             @PathVariable Long id,
-            @Valid @RequestBody VehicleRequest request) {
+            @Valid @RequestBody VehicleRequest vehicleRequest) {
 
         return ResponseEntity.ok(
-                vehicleService.updateVehicle(id, request)
+                vehicleService.updateVehicle(id, vehicleRequest)
         );
     }
 
