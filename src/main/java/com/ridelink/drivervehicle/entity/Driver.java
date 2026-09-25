@@ -33,8 +33,9 @@ public class Driver {
     @Column(unique = true)
     private String email;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    private DriverStatus status;
 
     public Driver() {
     }
@@ -44,7 +45,7 @@ public class Driver {
             String licenseNumber,
             String phone,
             String email,
-            String status
+            DriverStatus status
     ) {
         this.name = name;
         this.licenseNumber = licenseNumber;
@@ -93,11 +94,11 @@ public class Driver {
         this.email = email;
     }
 
-    public String getStatus() {
+    public DriverStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(DriverStatus status) {
         this.status = status;
     }
 }
