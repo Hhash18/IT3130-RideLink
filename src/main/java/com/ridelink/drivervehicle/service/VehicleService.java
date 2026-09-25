@@ -3,7 +3,7 @@ package com.ridelink.drivervehicle.service;
 import com.ridelink.drivervehicle.dto.VehicleRequest;
 import com.ridelink.drivervehicle.dto.VehicleResponse;
 import com.ridelink.drivervehicle.entity.Vehicle;
-import com.ridelink.drivervehicle.exception.VehicleNotFoundException;
+import com.ridelink.drivervehicle.exception.ResourceNotFoundException;
 import com.ridelink.drivervehicle.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
 
@@ -30,9 +30,10 @@ public class VehicleService {
 
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() ->
-                        new VehicleNotFoundException(
+                        new ResourceNotFoundException(
                                 "Vehicle not found with id: " + id
-                        ));
+                        )
+                );
 
         return mapToResponse(vehicle);
     }
@@ -62,9 +63,10 @@ public class VehicleService {
         Vehicle existingVehicle =
                 vehicleRepository.findById(id)
                         .orElseThrow(() ->
-                                new VehicleNotFoundException(
+                                new ResourceNotFoundException(
                                         "Vehicle not found with id: " + id
-                                ));
+                                )
+                        );
 
         existingVehicle.setRegistrationNumber(
                 request.getRegistrationNumber()
@@ -82,24 +84,30 @@ public class VehicleService {
 
     public void deleteVehicle(Long id) {
 
-        Vehicle vehicle = vehicleRepository.findById(id)
-                .orElseThrow(() ->
-                        new VehicleNotFoundException(
-                                "Vehicle not found with id: " + id
-                        ));
+        Vehicle vehicle =
+                vehicleRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Vehicle not found with id: " + id
+                                )
+                        );
 
         vehicleRepository.delete(vehicle);
     }
 
     private VehicleResponse mapToResponse(Vehicle vehicle) {
 
-        return new VehicleResponse(
-                vehicle.getId(),
-                vehicle.getRegistrationNumber(),
-                vehicle.getType(),
-                vehicle.getModel(),
-                vehicle.getCapacity(),
-                vehicle.getStatus()
+        VehicleResponse response = new VehicleResponse();
+
+        response.setId(vehicle.getId());
+        response.setRegistrationNumber(
+                vehicle.getRegistrationNumber()
         );
+        response.setType(vehicle.getType());
+        response.setModel(vehicle.getModel());
+        response.setCapacity(vehicle.getCapacity());
+        response.setStatus(vehicle.getStatus());
+
+        return response;
     }
 }

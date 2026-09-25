@@ -3,7 +3,7 @@ package com.ridelink.drivervehicle.service;
 import com.ridelink.drivervehicle.dto.DriverRequest;
 import com.ridelink.drivervehicle.dto.DriverResponse;
 import com.ridelink.drivervehicle.entity.Driver;
-import com.ridelink.drivervehicle.exception.DriverNotFoundException;
+import com.ridelink.drivervehicle.exception.ResourceNotFoundException;
 import com.ridelink.drivervehicle.repository.DriverRepository;
 import org.springframework.stereotype.Service;
 
@@ -30,9 +30,10 @@ public class DriverService {
 
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() ->
-                        new DriverNotFoundException(
+                        new ResourceNotFoundException(
                                 "Driver not found with id: " + id
-                        ));
+                        )
+                );
 
         return mapToResponse(driver);
     }
@@ -58,9 +59,10 @@ public class DriverService {
 
         Driver existingDriver = driverRepository.findById(id)
                 .orElseThrow(() ->
-                        new DriverNotFoundException(
+                        new ResourceNotFoundException(
                                 "Driver not found with id: " + id
-                        ));
+                        )
+                );
 
         existingDriver.setName(request.getName());
         existingDriver.setLicenseNumber(request.getLicenseNumber());
@@ -78,22 +80,25 @@ public class DriverService {
 
         Driver driver = driverRepository.findById(id)
                 .orElseThrow(() ->
-                        new DriverNotFoundException(
+                        new ResourceNotFoundException(
                                 "Driver not found with id: " + id
-                        ));
+                        )
+                );
 
         driverRepository.delete(driver);
     }
 
     private DriverResponse mapToResponse(Driver driver) {
 
-        return new DriverResponse(
-                driver.getId(),
-                driver.getName(),
-                driver.getLicenseNumber(),
-                driver.getPhone(),
-                driver.getEmail(),
-                driver.getStatus()
-        );
+        DriverResponse response = new DriverResponse();
+
+        response.setId(driver.getId());
+        response.setName(driver.getName());
+        response.setLicenseNumber(driver.getLicenseNumber());
+        response.setPhone(driver.getPhone());
+        response.setEmail(driver.getEmail());
+        response.setStatus(driver.getStatus());
+
+        return response;
     }
 }

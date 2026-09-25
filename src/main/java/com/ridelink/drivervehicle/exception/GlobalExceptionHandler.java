@@ -13,46 +13,39 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(DriverNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleDriverNotFound(
-            DriverNotFoundException exception) {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleResourceNotFound(
+            ResourceNotFoundException ex) {
 
-        return buildResponse(
-                HttpStatus.NOT_FOUND,
-                exception.getMessage()
-        );
-    }
+        Map<String, Object> response = new HashMap<>();
 
-    @ExceptionHandler(VehicleNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleVehicleNotFound(
-            VehicleNotFoundException exception) {
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.NOT_FOUND.value());
+        response.put("error", "Not Found");
+        response.put("message", ex.getMessage());
 
-        return buildResponse(
-                HttpStatus.NOT_FOUND,
-                exception.getMessage()
-        );
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(response);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationErrors(
-            MethodArgumentNotValidException exception) {
+    public ResponseEntity<Map<String, Object>> handleValidationException(
+            MethodArgumentNotValidException ex) {
 
-        Map<String, String> errors = new HashMap<>();
+        Map<String, Object> errors = new HashMap<>();
 
-        exception.getBindingResult()
+        ex.getBindingResult()
                 .getFieldErrors()
                 .forEach(error ->
-                        errors.put(
-                                error.getField(),
-                                error.getDefaultMessage()
-                        )
+                        errors.put(error.getField(), error.getDefaultMessage())
                 );
 
         Map<String, Object> response = new HashMap<>();
 
         response.put("timestamp", LocalDateTime.now());
         response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("message", "Validation failed");
+        response.put("error", "Validation Failed");
         response.put("errors", errors);
 
         return ResponseEntity
@@ -60,18 +53,19 @@ public class GlobalExceptionHandler {
                 .body(response);
     }
 
-    private ResponseEntity<Map<String, Object>> buildResponse(
-            HttpStatus status,
-            String message) {
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleGeneralException(
+            Exception ex) {
 
         Map<String, Object> response = new HashMap<>();
 
         response.put("timestamp", LocalDateTime.now());
-        response.put("status", status.value());
-        response.put("message", message);
+        response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        response.put("error", "Internal Server Error");
+        response.put("message", ex.getMessage());
 
         return ResponseEntity
-                .status(status)
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(response);
     }
 }
