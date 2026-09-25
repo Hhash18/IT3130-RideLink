@@ -20,6 +20,10 @@ public class DriverService {
         return driverRepository.findAll();
     }
 
+    public List<Driver> getAvailableDrivers() {
+        return driverRepository.findByStatus(DriverStatus.AVAILABLE);
+    }
+
     public Driver getDriverById(Long id) {
         return driverRepository.findById(id)
                 .orElseThrow(() ->

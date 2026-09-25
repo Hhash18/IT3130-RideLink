@@ -35,6 +35,15 @@ public class DriverController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/available")
+    public ResponseEntity<List<DriverResponse>> getAvailableDrivers() {
+        List<Driver> drivers = driverService.getAvailableDrivers();
+        List<DriverResponse> response = drivers.stream()
+        .map(this::toResponse)
+        .toList();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<DriverResponse> getDriverById(
             @PathVariable Long id) {
