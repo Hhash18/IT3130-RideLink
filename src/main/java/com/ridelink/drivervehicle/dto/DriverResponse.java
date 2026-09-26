@@ -4,6 +4,9 @@ import com.ridelink.drivervehicle.entity.DriverStatus;
 
 public class DriverResponse {
 
+    private Long vehicleId;
+    private String vehicleRegistrationNumber;
+
     private Long id;
     private String name;
     private String licenseNumber;
@@ -77,4 +80,21 @@ public class DriverResponse {
     public void setStatus(DriverStatus status) {
         this.status = status;
     }
+
+    public Long getVehicleId() {
+        return vehicleId;
+    }
+
+    public void setVehicleId(Long vehicleId) {
+        this.vehicleId = vehicleId;
+    }
+    
+    public String getVehicleRegistrationNumber() {
+        return vehicleRegistrationNumber;
+    }
+    
+    public void setVehicleRegistrationNumber(
+        String vehicleRegistrationNumber) {
+            this.vehicleRegistrationNumber = vehicleRegistrationNumber;
+        }
 }

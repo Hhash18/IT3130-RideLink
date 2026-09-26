@@ -36,6 +36,10 @@ public class Driver {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DriverStatus status;
+    
+    @ManyToOne
+    @JoinColumn(name = "vehicle_id")
+    private Vehicle vehicle;
 
     public Driver() {
     }
@@ -100,5 +104,12 @@ public class Driver {
 
     public void setStatus(DriverStatus status) {
         this.status = status;
+    }
+
+    public Vehicle getVehicle() {
+    return vehicle;
+}
+    public void setVehicle(Vehicle vehicle) {
+        this.vehicle = vehicle;
     }
 }

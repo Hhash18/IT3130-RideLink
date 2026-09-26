@@ -6,6 +6,9 @@ import com.ridelink.drivervehicle.entity.Driver;
 import com.ridelink.drivervehicle.entity.DriverStatus;
 import com.ridelink.drivervehicle.exception.ResourceNotFoundException;
 import com.ridelink.drivervehicle.repository.DriverRepository;
+import com.ridelink.drivervehicle.entity.Vehicle;
+import com.ridelink.drivervehicle.entity.VehicleStatus;
+import com.ridelink.drivervehicle.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,9 +17,14 @@ import java.util.List;
 public class DriverService {
 
     private final DriverRepository driverRepository;
-
-    public DriverService(DriverRepository driverRepository) {
+    private final VehicleRepository vehicleRepository;
+    
+    public DriverService(
+        DriverRepository driverRepository,
+        VehicleRepository vehicleRepository
+    ) {
         this.driverRepository = driverRepository;
+        this.vehicleRepository = vehicleRepository;
     }
 
     // Get all drivers
@@ -119,6 +127,40 @@ public class DriverService {
         return mapToResponse(updatedDriver);
     }
 
+    // Assign vehicle to driver
+    public DriverResponse assignVehicle(
+        Long driverId,
+        Long vehicleId
+    ) {
+        
+        Driver driver = driverRepository.findById(driverId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Driver not found with id: " + driverId
+                        )
+               );
+               
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                               "Vehicle not found with id: " + vehicleId
+                       )
+                );
+                
+                if (vehicle.getStatus() != VehicleStatus.AVAILABLE) {
+                        throw new IllegalStateException(
+                                "Vehicle is not available for assignment"
+                        );
+                }
+
+    driver.setVehicle(vehicle);
+
+    Driver updatedDriver =
+            driverRepository.save(driver);
+
+    return mapToResponse(updatedDriver);
+}
+
     // Delete driver
     public void deleteDriver(Long id) {
 
@@ -145,6 +187,16 @@ public class DriverService {
 
         // DriverResponse also uses DriverStatus enum
         response.setStatus(driver.getStatus());
+
+        if (driver.getVehicle() != null) {
+                response.setVehicleId(
+                        driver.getVehicle().getId()
+                );
+                
+                response.setVehicleRegistrationNumber(
+                        driver.getVehicle().getRegistrationNumber()
+                );
+        }
 
         return response;
     }

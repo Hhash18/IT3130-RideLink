@@ -88,6 +88,21 @@ public class DriverController {
         );
     }
 
+    // Assign vehicle to driver
+    @PatchMapping("/{driverId}/vehicle/{vehicleId}")
+    public ResponseEntity<DriverResponse> assignVehicle(
+            @PathVariable Long driverId,
+            @PathVariable Long vehicleId) {
+
+        return ResponseEntity.ok(
+                driverService.assignVehicle(
+                        driverId,
+                        vehicleId
+                )
+        );
+    }
+
+
     // Delete driver
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDriver(
