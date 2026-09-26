@@ -1,7 +1,10 @@
 package com.ridelink.drivervehicle.service;
 
+import com.ridelink.drivervehicle.dto.DriverRequest;
+import com.ridelink.drivervehicle.dto.DriverResponse;
 import com.ridelink.drivervehicle.entity.Driver;
 import com.ridelink.drivervehicle.entity.DriverStatus;
+import com.ridelink.drivervehicle.exception.ResourceNotFoundException;
 import com.ridelink.drivervehicle.repository.DriverRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,41 +19,102 @@ public class DriverService {
         this.driverRepository = driverRepository;
     }
 
-    public List<Driver> getAllDrivers() {
-        return driverRepository.findAll();
+    public List<DriverResponse> getAllDrivers() {
+
+        return driverRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
-    public List<Driver> getAvailableDrivers() {
-        return driverRepository.findByStatus(DriverStatus.AVAILABLE);
+    public List<DriverResponse> getAvailableDrivers() {
+
+        return driverRepository.findByStatus(DriverStatus.AVAILABLE)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
-    public Driver getDriverById(Long id) {
-        return driverRepository.findById(id)
+    public DriverResponse getDriverById(Long id) {
+
+        Driver driver = driverRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Driver not found with id: " + id));
+                        new ResourceNotFoundException(
+                                "Driver not found with id: " + id
+                        )
+                );
+
+        return mapToResponse(driver);
     }
 
-    public Driver createDriver(Driver driver) {
-        return driverRepository.save(driver);
+    public DriverResponse createDriver(DriverRequest request) {
+
+        Driver driver = new Driver();
+
+        driver.setName(request.getName());
+        driver.setLicenseNumber(request.getLicenseNumber());
+        driver.setPhone(request.getPhone());
+        driver.setEmail(request.getEmail());
+
+        driver.setStatus(
+                DriverStatus.valueOf(request.getStatus().toUpperCase())
+        );
+
+        Driver savedDriver = driverRepository.save(driver);
+
+        return mapToResponse(savedDriver);
     }
 
-    public Driver updateDriver(Long id, Driver updatedDriver) {
+    public DriverResponse updateDriver(
+            Long id,
+            DriverRequest request) {
 
-        Driver existingDriver = getDriverById(id);
+        Driver existingDriver = driverRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Driver not found with id: " + id
+                        )
+                );
 
-        existingDriver.setName(updatedDriver.getName());
-        existingDriver.setLicenseNumber(updatedDriver.getLicenseNumber());
-        existingDriver.setPhone(updatedDriver.getPhone());
-        existingDriver.setEmail(updatedDriver.getEmail());
-        existingDriver.setStatus(updatedDriver.getStatus());
+        existingDriver.setName(request.getName());
+        existingDriver.setLicenseNumber(request.getLicenseNumber());
+        existingDriver.setPhone(request.getPhone());
+        existingDriver.setEmail(request.getEmail());
 
-        return driverRepository.save(existingDriver);
+        existingDriver.setStatus(
+                DriverStatus.valueOf(request.getStatus().toUpperCase())
+        );
+
+        Driver updatedDriver =
+                driverRepository.save(existingDriver);
+
+        return mapToResponse(updatedDriver);
     }
 
     public void deleteDriver(Long id) {
 
-        Driver driver = getDriverById(id);
+        Driver driver = driverRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Driver not found with id: " + id
+                        )
+                );
 
         driverRepository.delete(driver);
+    }
+
+    private DriverResponse mapToResponse(Driver driver) {
+
+        DriverResponse response = new DriverResponse();
+
+        response.setId(driver.getId());
+        response.setName(driver.getName());
+        response.setLicenseNumber(driver.getLicenseNumber());
+        response.setPhone(driver.getPhone());
+        response.setEmail(driver.getEmail());
+
+        response.setStatus(driver.getStatus().name());
+
+        return response;
     }
 }

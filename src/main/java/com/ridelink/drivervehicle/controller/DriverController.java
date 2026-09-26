@@ -2,11 +2,8 @@ package com.ridelink.drivervehicle.controller;
 
 import com.ridelink.drivervehicle.dto.DriverRequest;
 import com.ridelink.drivervehicle.dto.DriverResponse;
-import com.ridelink.drivervehicle.entity.Driver;
 import com.ridelink.drivervehicle.service.DriverService;
-
 import jakarta.validation.Valid;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,44 +23,38 @@ public class DriverController {
     @GetMapping
     public ResponseEntity<List<DriverResponse>> getAllDrivers() {
 
-        List<Driver> drivers = driverService.getAllDrivers();
-
-        List<DriverResponse> response = drivers.stream()
-                .map(this::toResponse)
-                .toList();
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                driverService.getAllDrivers()
+        );
     }
 
     @GetMapping("/available")
     public ResponseEntity<List<DriverResponse>> getAvailableDrivers() {
-        List<Driver> drivers = driverService.getAvailableDrivers();
-        List<DriverResponse> response = drivers.stream()
-        .map(this::toResponse)
-        .toList();
-        return ResponseEntity.ok(response);
+
+        return ResponseEntity.ok(
+                driverService.getAvailableDrivers()
+        );
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<DriverResponse> getDriverById(
             @PathVariable Long id) {
 
-        Driver driver = driverService.getDriverById(id);
-
-        return ResponseEntity.ok(toResponse(driver));
+        return ResponseEntity.ok(
+                driverService.getDriverById(id)
+        );
     }
 
     @PostMapping
     public ResponseEntity<DriverResponse> createDriver(
             @Valid @RequestBody DriverRequest request) {
 
-        Driver driver = toEntity(request);
-
-        Driver createdDriver = driverService.createDriver(driver);
+        DriverResponse createdDriver =
+                driverService.createDriver(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(toResponse(createdDriver));
+                .body(createdDriver);
     }
 
     @PutMapping("/{id}")
@@ -71,12 +62,9 @@ public class DriverController {
             @PathVariable Long id,
             @Valid @RequestBody DriverRequest request) {
 
-        Driver driver = toEntity(request);
-
-        Driver updatedDriver =
-                driverService.updateDriver(id, driver);
-
-        return ResponseEntity.ok(toResponse(updatedDriver));
+        return ResponseEntity.ok(
+                driverService.updateDriver(id, request)
+        );
     }
 
     @DeleteMapping("/{id}")
@@ -86,40 +74,5 @@ public class DriverController {
         driverService.deleteDriver(id);
 
         return ResponseEntity.noContent().build();
-    }
-
-    private Driver toEntity(DriverRequest request) {
-
-        Driver driver = new Driver();
-
-        driver.setName(request.getName());
-        driver.setLicenseNumber(request.getLicenseNumber());
-        driver.setPhone(request.getPhone());
-        driver.setEmail(request.getEmail());
-
-        /*
-         * DriverRequest status type eka current project eke
-         * String nam enum ekata convert karanawa.
-         */
-        driver.setStatus(
-                com.ridelink.drivervehicle.entity.DriverStatus
-                        .valueOf(request.getStatus().toUpperCase())
-        );
-
-        return driver;
-    }
-
-    private DriverResponse toResponse(Driver driver) {
-
-        DriverResponse response = new DriverResponse();
-
-        response.setId(driver.getId());
-        response.setName(driver.getName());
-        response.setLicenseNumber(driver.getLicenseNumber());
-        response.setPhone(driver.getPhone());
-        response.setEmail(driver.getEmail());
-        response.setStatus(driver.getStatus().name());
-
-        return response;
     }
 }
