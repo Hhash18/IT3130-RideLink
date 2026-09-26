@@ -4,9 +4,11 @@ import com.ridelink.account.dto.AccountResponse;
 import com.ridelink.account.dto.RegisterRequest;
 import com.ridelink.account.entity.Account;
 import com.ridelink.account.entity.Role;
+import com.ridelink.account.exception.AdminRegistrationException;
 import com.ridelink.account.repository.AccountRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.ridelink.account.exception.DuplicateEmailException;
 
 @Service
 public class AccountService {
@@ -23,16 +25,17 @@ public class AccountService {
     public AccountResponse register(RegisterRequest request) {
 
         if (request.getRole() == Role.ADMIN) {
-            throw new IllegalArgumentException(
+            throw new AdminRegistrationException(
                     "Admin accounts cannot be created through public registration"
-            );
+);
         }
 
         if (accountRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException(
+            throw new DuplicateEmailException(
                     "An account with this email already exists"
             );
         }
+             
 
         Account account = new Account();
 
