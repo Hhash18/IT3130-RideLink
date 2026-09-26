@@ -25,9 +25,10 @@ public class Vehicle {
 
     @Column(nullable = false)
     private Integer capacity;
-
+    
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    private VehicleStatus status;
 
     public Vehicle() {
     }
@@ -37,7 +38,7 @@ public class Vehicle {
             String type,
             String model,
             Integer capacity,
-            String status
+            VehicleStatus status
     ) {
         this.registrationNumber = registrationNumber;
         this.type = type;
@@ -85,12 +86,12 @@ public class Vehicle {
     public void setCapacity(Integer capacity) {
         this.capacity = capacity;
     }
-
-    public String getStatus() {
+    
+    public VehicleStatus getStatus() {
         return status;
     }
-
-    public void setStatus(String status) {
+    
+    public void setStatus(VehicleStatus status) {
         this.status = status;
     }
 }

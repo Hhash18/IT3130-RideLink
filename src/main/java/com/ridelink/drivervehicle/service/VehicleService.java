@@ -3,6 +3,7 @@ package com.ridelink.drivervehicle.service;
 import com.ridelink.drivervehicle.dto.VehicleRequest;
 import com.ridelink.drivervehicle.dto.VehicleResponse;
 import com.ridelink.drivervehicle.entity.Vehicle;
+import com.ridelink.drivervehicle.entity.VehicleStatus;
 import com.ridelink.drivervehicle.exception.ResourceNotFoundException;
 import com.ridelink.drivervehicle.repository.VehicleRepository;
 import org.springframework.stereotype.Service;
@@ -27,11 +28,11 @@ public class VehicleService {
     }
 
     public List<VehicleResponse> getAvailableVehicles() {
-        return vehicleRepository.findByStatus("AVAILABLE")
+        return vehicleRepository.findByStatus(VehicleStatus.AVAILABLE)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
-    }
+}
 
     public VehicleResponse getVehicleById(Long id) {
 
@@ -55,7 +56,10 @@ public class VehicleService {
         vehicle.setType(request.getType());
         vehicle.setModel(request.getModel());
         vehicle.setCapacity(request.getCapacity());
-        vehicle.setStatus(request.getStatus());
+        vehicle.setStatus(
+        VehicleStatus.valueOf(
+                request.getStatus().trim().toUpperCase()
+        ));
 
         Vehicle savedVehicle =
                 vehicleRepository.save(vehicle);
@@ -81,7 +85,10 @@ public class VehicleService {
         existingVehicle.setType(request.getType());
         existingVehicle.setModel(request.getModel());
         existingVehicle.setCapacity(request.getCapacity());
-        existingVehicle.setStatus(request.getStatus());
+        existingVehicle.setStatus(
+        VehicleStatus.valueOf(
+                request.getStatus().trim().toUpperCase()
+        ));
 
         Vehicle updatedVehicle =
                 vehicleRepository.save(existingVehicle);
@@ -113,7 +120,7 @@ public class VehicleService {
         response.setType(vehicle.getType());
         response.setModel(vehicle.getModel());
         response.setCapacity(vehicle.getCapacity());
-        response.setStatus(vehicle.getStatus());
+        response.setStatus(vehicle.getStatus().name());
 
         return response;
     }
