@@ -19,6 +19,7 @@ public class DriverService {
         this.driverRepository = driverRepository;
     }
 
+    // Get all drivers
     public List<DriverResponse> getAllDrivers() {
 
         return driverRepository.findAll()
@@ -27,14 +28,19 @@ public class DriverService {
                 .toList();
     }
 
+    // Get available drivers
     public List<DriverResponse> getAvailableDrivers() {
 
-        return driverRepository.findByStatus(DriverStatus.AVAILABLE)
+        return driverRepository.findAll()
                 .stream()
+                .filter(driver ->
+                        driver.getStatus() == DriverStatus.AVAILABLE
+                )
                 .map(this::mapToResponse)
                 .toList();
     }
 
+    // Get driver by ID
     public DriverResponse getDriverById(Long id) {
 
         Driver driver = driverRepository.findById(id)
@@ -47,6 +53,7 @@ public class DriverService {
         return mapToResponse(driver);
     }
 
+    // Create driver
     public DriverResponse createDriver(DriverRequest request) {
 
         Driver driver = new Driver();
@@ -55,6 +62,8 @@ public class DriverService {
         driver.setLicenseNumber(request.getLicenseNumber());
         driver.setPhone(request.getPhone());
         driver.setEmail(request.getEmail());
+
+        // DriverRequest already uses DriverStatus enum
         driver.setStatus(request.getStatus());
 
         Driver savedDriver = driverRepository.save(driver);
@@ -62,22 +71,25 @@ public class DriverService {
         return mapToResponse(savedDriver);
     }
 
+    // Update driver
     public DriverResponse updateDriver(
             Long id,
-            DriverRequest request) {
+            DriverRequest request
+    ) {
 
-        Driver existingDriver =
-                driverRepository.findById(id)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Driver not found with id: " + id
-                                )
-                        );
+        Driver existingDriver = driverRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Driver not found with id: " + id
+                        )
+                );
 
         existingDriver.setName(request.getName());
         existingDriver.setLicenseNumber(request.getLicenseNumber());
         existingDriver.setPhone(request.getPhone());
         existingDriver.setEmail(request.getEmail());
+
+        // DriverRequest already uses DriverStatus enum
         existingDriver.setStatus(request.getStatus());
 
         Driver updatedDriver =
@@ -86,19 +98,41 @@ public class DriverService {
         return mapToResponse(updatedDriver);
     }
 
+    // Update driver availability/status
+    public DriverResponse updateAvailability(
+            Long id,
+            DriverStatus status
+    ) {
+
+        Driver driver = driverRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Driver not found with id: " + id
+                        )
+                );
+
+        driver.setStatus(status);
+
+        Driver updatedDriver =
+                driverRepository.save(driver);
+
+        return mapToResponse(updatedDriver);
+    }
+
+    // Delete driver
     public void deleteDriver(Long id) {
 
-        Driver driver =
-                driverRepository.findById(id)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Driver not found with id: " + id
-                                )
-                        );
+        Driver driver = driverRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Driver not found with id: " + id
+                        )
+                );
 
         driverRepository.delete(driver);
     }
 
+    // Entity -> Response DTO
     private DriverResponse mapToResponse(Driver driver) {
 
         DriverResponse response = new DriverResponse();
@@ -108,6 +142,8 @@ public class DriverService {
         response.setLicenseNumber(driver.getLicenseNumber());
         response.setPhone(driver.getPhone());
         response.setEmail(driver.getEmail());
+
+        // DriverResponse also uses DriverStatus enum
         response.setStatus(driver.getStatus());
 
         return response;

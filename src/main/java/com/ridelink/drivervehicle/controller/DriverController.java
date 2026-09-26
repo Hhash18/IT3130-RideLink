@@ -1,7 +1,9 @@
 package com.ridelink.drivervehicle.controller;
 
+import com.ridelink.drivervehicle.dto.DriverAvailabilityRequest;
 import com.ridelink.drivervehicle.dto.DriverRequest;
 import com.ridelink.drivervehicle.dto.DriverResponse;
+import com.ridelink.drivervehicle.entity.DriverStatus;
 import com.ridelink.drivervehicle.service.DriverService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,7 @@ public class DriverController {
         this.driverService = driverService;
     }
 
+    // Get all drivers
     @GetMapping
     public ResponseEntity<List<DriverResponse>> getAllDrivers() {
 
@@ -28,6 +31,7 @@ public class DriverController {
         );
     }
 
+    // Get available drivers
     @GetMapping("/available")
     public ResponseEntity<List<DriverResponse>> getAvailableDrivers() {
 
@@ -36,6 +40,7 @@ public class DriverController {
         );
     }
 
+    // Get driver by ID
     @GetMapping("/{id}")
     public ResponseEntity<DriverResponse> getDriverById(
             @PathVariable Long id) {
@@ -45,6 +50,7 @@ public class DriverController {
         );
     }
 
+    // Create driver
     @PostMapping
     public ResponseEntity<DriverResponse> createDriver(
             @Valid @RequestBody DriverRequest request) {
@@ -57,6 +63,7 @@ public class DriverController {
                 .body(createdDriver);
     }
 
+    // Update driver
     @PutMapping("/{id}")
     public ResponseEntity<DriverResponse> updateDriver(
             @PathVariable Long id,
@@ -67,6 +74,21 @@ public class DriverController {
         );
     }
 
+    // Update driver availability
+    @PatchMapping("/{id}/availability")
+    public ResponseEntity<DriverResponse> updateAvailability(
+            @PathVariable Long id,
+            @Valid @RequestBody DriverAvailabilityRequest request) {
+
+        return ResponseEntity.ok(
+                driverService.updateAvailability(
+                        id,
+                        request.getStatus()
+                )
+        );
+    }
+
+    // Delete driver
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDriver(
             @PathVariable Long id) {
