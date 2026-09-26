@@ -55,10 +55,7 @@ public class DriverService {
         driver.setLicenseNumber(request.getLicenseNumber());
         driver.setPhone(request.getPhone());
         driver.setEmail(request.getEmail());
-
-        driver.setStatus(
-                DriverStatus.valueOf(request.getStatus().toUpperCase())
-        );
+        driver.setStatus(request.getStatus());
 
         Driver savedDriver = driverRepository.save(driver);
 
@@ -69,21 +66,19 @@ public class DriverService {
             Long id,
             DriverRequest request) {
 
-        Driver existingDriver = driverRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Driver not found with id: " + id
-                        )
-                );
+        Driver existingDriver =
+                driverRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Driver not found with id: " + id
+                                )
+                        );
 
         existingDriver.setName(request.getName());
         existingDriver.setLicenseNumber(request.getLicenseNumber());
         existingDriver.setPhone(request.getPhone());
         existingDriver.setEmail(request.getEmail());
-
-        existingDriver.setStatus(
-                DriverStatus.valueOf(request.getStatus().toUpperCase())
-        );
+        existingDriver.setStatus(request.getStatus());
 
         Driver updatedDriver =
                 driverRepository.save(existingDriver);
@@ -93,12 +88,13 @@ public class DriverService {
 
     public void deleteDriver(Long id) {
 
-        Driver driver = driverRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Driver not found with id: " + id
-                        )
-                );
+        Driver driver =
+                driverRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Driver not found with id: " + id
+                                )
+                        );
 
         driverRepository.delete(driver);
     }
@@ -112,8 +108,7 @@ public class DriverService {
         response.setLicenseNumber(driver.getLicenseNumber());
         response.setPhone(driver.getPhone());
         response.setEmail(driver.getEmail());
-
-        response.setStatus(driver.getStatus().name());
+        response.setStatus(driver.getStatus());
 
         return response;
     }

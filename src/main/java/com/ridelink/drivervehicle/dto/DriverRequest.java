@@ -1,8 +1,10 @@
 package com.ridelink.drivervehicle.dto;
 
+import com.ridelink.drivervehicle.entity.DriverStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.NotNull;
 
 public class DriverRequest {
 
@@ -22,8 +24,8 @@ public class DriverRequest {
     @Email(message = "Invalid email address")
     private String email;
 
-    @NotBlank(message = "Status is required")
-    private String status;
+    @NotNull(message = "Status is required")
+    private DriverStatus status;
 
     public DriverRequest() {
     }
@@ -60,11 +62,11 @@ public class DriverRequest {
         this.email = email;
     }
 
-    public String getStatus() {
+    public DriverStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(DriverStatus status) {
         this.status = status;
     }
 }
