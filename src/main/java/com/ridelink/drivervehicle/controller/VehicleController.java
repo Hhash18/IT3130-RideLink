@@ -3,7 +3,9 @@ package com.ridelink.drivervehicle.controller;
 import com.ridelink.drivervehicle.dto.VehicleRequest;
 import com.ridelink.drivervehicle.dto.VehicleResponse;
 import com.ridelink.drivervehicle.service.VehicleService;
+
 import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +24,18 @@ public class VehicleController {
 
     @GetMapping
     public ResponseEntity<List<VehicleResponse>> getAllVehicles() {
-        return ResponseEntity.ok(vehicleService.getAllVehicles());
+
+        return ResponseEntity.ok(
+                vehicleService.getAllVehicles()
+        );
+    }
+
+    @GetMapping("/available")
+    public ResponseEntity<List<VehicleResponse>> getAvailableVehicles() {
+
+        return ResponseEntity.ok(
+                vehicleService.getAvailableVehicles()
+        );
     }
 
     @GetMapping("/{id}")
@@ -36,10 +49,10 @@ public class VehicleController {
 
     @PostMapping
     public ResponseEntity<VehicleResponse> createVehicle(
-            @Valid @RequestBody VehicleRequest vehicleRequest) {
+            @Valid @RequestBody VehicleRequest request) {
 
         VehicleResponse createdVehicle =
-                vehicleService.createVehicle(vehicleRequest);
+                vehicleService.createVehicle(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -49,10 +62,10 @@ public class VehicleController {
     @PutMapping("/{id}")
     public ResponseEntity<VehicleResponse> updateVehicle(
             @PathVariable Long id,
-            @Valid @RequestBody VehicleRequest vehicleRequest) {
+            @Valid @RequestBody VehicleRequest request) {
 
         return ResponseEntity.ok(
-                vehicleService.updateVehicle(id, vehicleRequest)
+                vehicleService.updateVehicle(id, request)
         );
     }
 

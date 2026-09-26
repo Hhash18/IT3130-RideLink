@@ -26,6 +26,13 @@ public class VehicleService {
                 .toList();
     }
 
+    public List<VehicleResponse> getAvailableVehicles() {
+        return vehicleRepository.findByStatus("AVAILABLE")
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
     public VehicleResponse getVehicleById(Long id) {
 
         Vehicle vehicle = vehicleRepository.findById(id)
