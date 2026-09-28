@@ -13,9 +13,8 @@ public class DriverResponse {
     private String phone;
     private String email;
     private DriverStatus status;
-    private String serviceArea;
-    private Double latitude;
-    private Double longitude;
+private String serviceArea;
+private String currentLocation;
 
     public DriverResponse() {
     }
@@ -101,27 +100,19 @@ public class DriverResponse {
             this.vehicleRegistrationNumber = vehicleRegistrationNumber;
         }
 
-    public String getServiceArea() {
-        return serviceArea;
-    }
-    
-    public void setServiceArea(String serviceArea) {
-        this.serviceArea = serviceArea;
-    }
-    
-    public Double getLatitude() {
-        return latitude;
-    }
-    
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
-    }
-    
-    public Double getLongitude() {
-        return longitude;
-    }
-    
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
-    }
+public String getServiceArea() {
+    return serviceArea;
+}
+
+public void setServiceArea(String serviceArea) {
+    this.serviceArea = serviceArea;
+}
+
+public String getCurrentLocation() {
+    return currentLocation;
+}
+
+public void setCurrentLocation(String currentLocation) {
+    this.currentLocation = currentLocation;
+}
 }

@@ -36,15 +36,18 @@ public class Driver {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DriverStatus status;
-
-    @Column(nullable = false)
-    private String serviceArea;
-    private Double latitude;
-    private Double longitude;
     
     @ManyToOne
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
+
+    @NotBlank(message = "Service area is required")
+@Column(name = "service_area", nullable = false)
+private String serviceArea;
+
+@NotBlank(message = "Current location is required")
+@Column(name = "current_location", nullable = false)
+private String currentLocation;
 
     public Driver() {
     }
@@ -111,35 +114,28 @@ public class Driver {
         this.status = status;
     }
 
-    public Vehicle getVehicle() {
+   public Vehicle getVehicle() {
     return vehicle;
-    }
-    
-    public String getServiceArea() {
+}
+
+public void setVehicle(Vehicle vehicle) {
+    this.vehicle = vehicle;
+}
+
+public String getServiceArea() {
     return serviceArea;
-    }
+}
+
+public void setServiceArea(String serviceArea) {
+    this.serviceArea = serviceArea;
+}
+
+public String getCurrentLocation() {
+    return currentLocation;
+}
+
+public void setCurrentLocation(String currentLocation) {
+    this.currentLocation = currentLocation;
+}
     
-    public void setServiceArea(String serviceArea) {
-        this.serviceArea = serviceArea;
-    }
-    
-    public Double getLatitude() {
-    return latitude;
-    }
-    
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
-    }
-    
-    public Double getLongitude() {
-    return longitude;
-    }
-    
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
-    }
-    
-    public void setVehicle(Vehicle vehicle) {
-        this.vehicle = vehicle;
-    }
 }
