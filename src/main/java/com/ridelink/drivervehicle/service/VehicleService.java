@@ -96,6 +96,26 @@ public class VehicleService {
         return mapToResponse(updatedVehicle);
     }
 
+    // Update vehicle status
+public VehicleResponse updateStatus(
+        Long id,
+        VehicleStatus status) {
+
+    Vehicle vehicle = vehicleRepository.findById(id)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "Vehicle not found with id: " + id
+                    )
+            );
+
+    vehicle.setStatus(status);
+
+    Vehicle updatedVehicle =
+            vehicleRepository.save(vehicle);
+
+    return mapToResponse(updatedVehicle);
+}
+
     public void deleteVehicle(Long id) {
 
         Vehicle vehicle =

@@ -3,6 +3,8 @@ package com.ridelink.drivervehicle.controller;
 import com.ridelink.drivervehicle.dto.VehicleRequest;
 import com.ridelink.drivervehicle.dto.VehicleResponse;
 import com.ridelink.drivervehicle.service.VehicleService;
+import com.ridelink.drivervehicle.dto.VehicleStatusRequest;
+import com.ridelink.drivervehicle.entity.VehicleStatus;
 
 import jakarta.validation.Valid;
 
@@ -68,6 +70,19 @@ public class VehicleController {
                 vehicleService.updateVehicle(id, request)
         );
     }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<VehicleResponse> updateStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody VehicleStatusRequest request) {
+
+    return ResponseEntity.ok(
+            vehicleService.updateStatus(
+                    id,
+                    request.getStatus()
+            )
+    );
+}
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteVehicle(
