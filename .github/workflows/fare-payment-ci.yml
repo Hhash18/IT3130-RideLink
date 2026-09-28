@@ -1,0 +1,27 @@
+name: Fare and Payment CI
+on:
+  push:
+    paths: ['fare-payment-service/**', '.github/workflows/fare-payment-ci.yml']
+  pull_request:
+    paths: ['fare-payment-service/**', '.github/workflows/fare-payment-ci.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          cache-dependency-path: fare-payment-service/pom.xml
+      - name: Build and test Member 4 service
+        run: mvn -B -ntp -f fare-payment-service/pom.xml verify
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fare-payment-test-results
+          path: fare-payment-service/target/surefire-reports/
