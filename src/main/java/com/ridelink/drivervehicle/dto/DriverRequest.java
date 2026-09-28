@@ -27,6 +27,11 @@ public class DriverRequest {
     @NotNull(message = "Status is required")
     private DriverStatus status;
 
+    @NotBlank(message = "Service area is required")
+    private String serviceArea;
+    private Double latitude;
+    private Double longitude;
+
     public DriverRequest() {
     }
 
@@ -68,5 +73,29 @@ public class DriverRequest {
 
     public void setStatus(DriverStatus status) {
         this.status = status;
+    }
+
+    public String getServiceArea() {
+        return serviceArea;
+    }
+    
+    public void setServiceArea(String serviceArea) {
+        this.serviceArea = serviceArea;
+    }
+    
+    public Double getLatitude() {
+        return latitude;
+    }
+    
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+    
+    public Double getLongitude() {
+        return longitude;
+    }
+    
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 }

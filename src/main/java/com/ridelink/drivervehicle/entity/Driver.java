@@ -36,6 +36,11 @@ public class Driver {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DriverStatus status;
+
+    @Column(nullable = false)
+    private String serviceArea;
+    private Double latitude;
+    private Double longitude;
     
     @ManyToOne
     @JoinColumn(name = "vehicle_id")
@@ -108,7 +113,32 @@ public class Driver {
 
     public Vehicle getVehicle() {
     return vehicle;
-}
+    }
+    
+    public String getServiceArea() {
+    return serviceArea;
+    }
+    
+    public void setServiceArea(String serviceArea) {
+        this.serviceArea = serviceArea;
+    }
+    
+    public Double getLatitude() {
+    return latitude;
+    }
+    
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+    
+    public Double getLongitude() {
+    return longitude;
+    }
+    
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+    
     public void setVehicle(Vehicle vehicle) {
         this.vehicle = vehicle;
     }

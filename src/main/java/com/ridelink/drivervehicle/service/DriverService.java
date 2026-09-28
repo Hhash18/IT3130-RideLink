@@ -74,6 +74,10 @@ public class DriverService {
         // DriverRequest already uses DriverStatus enum
         driver.setStatus(request.getStatus());
 
+        driver.setServiceArea(request.getServiceArea());
+        driver.setLatitude(request.getLatitude());
+        driver.setLongitude(request.getLongitude());
+
         Driver savedDriver = driverRepository.save(driver);
 
         return mapToResponse(savedDriver);
@@ -99,6 +103,10 @@ public class DriverService {
 
         // DriverRequest already uses DriverStatus enum
         existingDriver.setStatus(request.getStatus());
+
+        existingDriver.setServiceArea(request.getServiceArea());
+        existingDriver.setLatitude(request.getLatitude());
+        existingDriver.setLongitude(request.getLongitude());
 
         Driver updatedDriver =
                 driverRepository.save(existingDriver);
@@ -232,6 +240,10 @@ public DriverResponse unassignVehicle(Long driverId) {
 
         // DriverResponse also uses DriverStatus enum
         response.setStatus(driver.getStatus());
+
+        response.setServiceArea(driver.getServiceArea());
+        response.setLatitude(driver.getLatitude());
+        response.setLongitude(driver.getLongitude());
 
         if (driver.getVehicle() != null) {
                 response.setVehicleId(
