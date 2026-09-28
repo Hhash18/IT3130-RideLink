@@ -6,3 +6,4 @@ public class AdminRegistrationException extends RuntimeException {
         super(message);
     }
 }
+

@@ -33,6 +33,16 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidCredentials(
+            InvalidCredentialsException exception) {
+
+        return buildErrorResponse(
+                HttpStatus.UNAUTHORIZED,
+                exception.getMessage()
+        );
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(
             MethodArgumentNotValidException exception) {
@@ -42,7 +52,10 @@ public class GlobalExceptionHandler {
         exception.getBindingResult()
                 .getFieldErrors()
                 .forEach(error ->
-                        errors.put(error.getField(), error.getDefaultMessage())
+                        errors.put(
+                                error.getField(),
+                                error.getDefaultMessage()
+                        )
                 );
 
         Map<String, Object> response = new HashMap<>();
@@ -73,3 +86,4 @@ public class GlobalExceptionHandler {
                 .body(response);
     }
 }
+

@@ -1,12 +1,15 @@
 package com.ridelink.account.controller;
 
 import com.ridelink.account.dto.AccountResponse;
+import com.ridelink.account.dto.LoginRequest;
+import com.ridelink.account.dto.LoginResponse;
 import com.ridelink.account.dto.RegisterRequest;
 import com.ridelink.account.service.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -25,5 +28,14 @@ public class AuthController {
         AccountResponse response = accountService.register(request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(
+            @Valid @RequestBody LoginRequest request) {
+
+        LoginResponse response = accountService.login(request);
+
+        return ResponseEntity.ok(response);
     }
 }
