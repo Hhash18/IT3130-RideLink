@@ -1,3 +1,0 @@
-# Explicit standalone demonstration only. Password must be supplied externally.
-ridelink:
-  demo-password: ${DEMO_PASSWORD}

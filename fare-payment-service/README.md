@@ -2,6 +2,40 @@
 
 Member 4's independently executable Java Spring Boot backend. Implements fare estimation, final fare calculation, simulated payment recording, payment status/history, and JSON receipts. No frontend, real payment gateway, Account implementation or Ride Management implementation is included.
 
+## Project structure
+
+The service follows the team's layered package convention used by Account and Driver & Vehicle:
+
+```text
+fare-payment-service/
+├── pom.xml
+├── mvnw / mvnw.cmd
+├── src/main/java/com/ridelink/farepayment/
+│   ├── FarePaymentApplication.java
+│   ├── config/        # SecurityConfig and OpenApiConfig
+│   ├── controller/    # FareController and PaymentController
+│   ├── dto/           # Separate request and response records
+│   ├── entity/        # Fare, Payment and status/method enums
+│   ├── exception/     # ServiceException and GlobalExceptionHandler
+│   ├── repository/    # JPA repositories
+│   ├── service/       # FareService, PaymentService and FareCalculator
+│   ├── security/      # Record ownership checks
+│   └── client/        # Ride service interface, REST and demo adapters
+├── src/main/resources/
+│   ├── application.properties
+│   ├── application-demo.properties
+│   └── db/migration/
+├── src/test/java/com/ridelink/farepayment/
+│   ├── client/
+│   ├── controller/
+│   ├── security/
+│   └── service/
+├── docs/
+└── postman/
+```
+
+API routes, database tables and fare/payment rules are unchanged by the package restructuring.
+
 ## Requirements and quick start
 
 Java 17+ is required. Use Maven 3.6.3+ or the included Maven wrapper (`./mvnw` on macOS/Linux, `mvnw.cmd` on Windows). The project uses Spring Boot 3.5.15, Spring Security, Spring Data JPA, Flyway, H2 and springdoc OpenAPI 2.8.16. Build from this service directory:
