@@ -102,6 +102,16 @@ public class DriverController {
         );
     }
 
+    // Unassign vehicle from driver
+    @PatchMapping("/{driverId}/vehicle/unassign")
+    public ResponseEntity<DriverResponse> unassignVehicle(
+             @PathVariable Long driverId) {
+                
+                return ResponseEntity.ok(
+                        driverService.unassignVehicle(driverId)
+                );
+    }
+
 
     // Delete driver
     @DeleteMapping("/{id}")

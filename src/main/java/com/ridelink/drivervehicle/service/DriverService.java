@@ -127,33 +127,78 @@ public class DriverService {
         return mapToResponse(updatedDriver);
     }
 
-    // Assign vehicle to driver
-    public DriverResponse assignVehicle(
+// Assign vehicle to driver
+public DriverResponse assignVehicle(
         Long driverId,
         Long vehicleId
-    ) {
-        
-        Driver driver = driverRepository.findById(driverId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Driver not found with id: " + driverId
-                        )
-               );
-               
-        Vehicle vehicle = vehicleRepository.findById(vehicleId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                               "Vehicle not found with id: " + vehicleId
-                       )
-                );
-                
-                if (vehicle.getStatus() != VehicleStatus.AVAILABLE) {
-                        throw new IllegalStateException(
-                                "Vehicle is not available for assignment"
-                        );
-                }
+) {
 
+    Driver driver = driverRepository.findById(driverId)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "Driver not found with id: " + driverId
+                    )
+            );
+
+    Vehicle vehicle = vehicleRepository.findById(vehicleId)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "Vehicle not found with id: " + vehicleId
+                    )
+            );
+
+    // Vehicle must be available
+    if (vehicle.getStatus() != VehicleStatus.AVAILABLE) {
+        throw new IllegalStateException(
+                "Vehicle is not available for assignment"
+        );
+    }
+
+    // Driver can have only one vehicle
+    if (driver.getVehicle() != null) {
+        throw new IllegalStateException(
+                "Driver already has a vehicle assigned"
+       );
+    }
+
+    // Assign vehicle to driver
     driver.setVehicle(vehicle);
+
+    // Change vehicle status after assignment
+    vehicle.setStatus(VehicleStatus.IN_USE);
+    vehicleRepository.save(vehicle);
+
+    Driver updatedDriver =
+            driverRepository.save(driver);
+
+    return mapToResponse(updatedDriver);
+}
+
+// Unassign vehicle from driver
+public DriverResponse unassignVehicle(Long driverId) {
+
+    Driver driver = driverRepository.findById(driverId)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "Driver not found with id: " + driverId
+                    )
+            );
+
+    // Check whether driver has a vehicle
+    if (driver.getVehicle() == null) {
+        throw new IllegalStateException(
+                "Driver does not have a vehicle assigned"
+        );
+    }
+
+    Vehicle vehicle = driver.getVehicle();
+
+    // Remove vehicle from driver
+    driver.setVehicle(null);
+
+    // Make vehicle available again
+    vehicle.setStatus(VehicleStatus.AVAILABLE);
+    vehicleRepository.save(vehicle);
 
     Driver updatedDriver =
             driverRepository.save(driver);
