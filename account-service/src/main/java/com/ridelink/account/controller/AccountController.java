@@ -11,6 +11,8 @@ import com.ridelink.account.dto.UpdateAccountRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.http.ResponseEntity;
+import com.ridelink.account.dto.ChangePasswordRequest;
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -37,5 +39,18 @@ public class AccountController {
                 principal.accountId(),
                 request
         );
+    }
+
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> changePassword(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @Valid @RequestBody ChangePasswordRequest request) {
+
+        accountService.changePassword(
+                principal.accountId(),
+                request
+        );
+
+        return ResponseEntity.noContent().build();
     }
 }

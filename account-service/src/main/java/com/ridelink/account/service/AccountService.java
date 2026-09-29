@@ -16,6 +16,7 @@ import com.ridelink.account.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.ridelink.account.dto.UpdateAccountRequest;
+import com.ridelink.account.dto.ChangePasswordRequest;
 
 import java.util.UUID;
 
@@ -125,6 +126,39 @@ public class AccountService {
         Account updatedAccount = accountRepository.save(account);
 
         return mapToResponse(updatedAccount);
+    }
+
+    public void changePassword(
+        UUID accountId,
+        ChangePasswordRequest request) {
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() ->
+                        new AccountNotFoundException("Account not found"));
+
+        if (!passwordEncoder.matches(
+                request.getCurrentPassword(),
+                account.getPassword())) {
+
+            throw new InvalidCredentialsException(
+                    "Current password is incorrect"
+            );
+        }
+
+        if (passwordEncoder.matches(
+                request.getNewPassword(),
+                account.getPassword())) {
+
+            throw new IllegalArgumentException(
+                    "New password must be different from the current password"
+            );
+        }
+
+        account.setPassword(
+                passwordEncoder.encode(request.getNewPassword())
+        );
+
+        accountRepository.save(account);
     }
 
     private AccountResponse mapToResponse(Account account) {
