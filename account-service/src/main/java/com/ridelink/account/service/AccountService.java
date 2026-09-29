@@ -15,6 +15,7 @@ import com.ridelink.account.repository.AccountRepository;
 import com.ridelink.account.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.ridelink.account.dto.UpdateAccountRequest;
 
 import java.util.UUID;
 
@@ -100,6 +101,30 @@ public class AccountService {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException("Account not found"));
         return mapToResponse(account);
+    }
+
+    public AccountResponse updateAccount(
+            UUID accountId,
+            UpdateAccountRequest request) {
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() ->
+                        new AccountNotFoundException("Account not found"));
+
+        if (!account.getEmail().equalsIgnoreCase(request.getEmail())
+                && accountRepository.existsByEmail(request.getEmail())) {
+
+            throw new DuplicateEmailException(
+                    "An account with this email already exists"
+            );
+        }
+
+        account.setName(request.getName());
+        account.setEmail(request.getEmail());
+
+        Account updatedAccount = accountRepository.save(account);
+
+        return mapToResponse(updatedAccount);
     }
 
     private AccountResponse mapToResponse(Account account) {

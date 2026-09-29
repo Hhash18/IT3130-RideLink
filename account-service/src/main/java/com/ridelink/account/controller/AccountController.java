@@ -7,6 +7,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.ridelink.account.dto.UpdateAccountRequest;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -22,5 +26,16 @@ public class AccountController {
     public AccountResponse getCurrentAccount(
             @AuthenticationPrincipal JwtPrincipal principal) {
         return accountService.getAccountById(principal.accountId());
+    }
+
+    @PutMapping("/me")
+    public AccountResponse updateCurrentAccount(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @Valid @RequestBody UpdateAccountRequest request) {
+
+        return accountService.updateAccount(
+                principal.accountId(),
+                request
+        );
     }
 }
