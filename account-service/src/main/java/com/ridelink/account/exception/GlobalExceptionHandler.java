@@ -13,6 +13,16 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+        @ExceptionHandler(AccountNotFoundException.class)
+        public ResponseEntity<Map<String, Object>> handleAccountNotFound(
+                        AccountNotFoundException exception) {
+
+                return buildErrorResponse(
+                                HttpStatus.NOT_FOUND,
+                                exception.getMessage()
+                );
+        }
+
     @ExceptionHandler(DuplicateEmailException.class)
     public ResponseEntity<Map<String, Object>> handleDuplicateEmail(
             DuplicateEmailException exception) {

@@ -7,6 +7,7 @@ import com.ridelink.account.dto.RegisterRequest;
 import com.ridelink.account.entity.Account;
 import com.ridelink.account.entity.AccountStatus;
 import com.ridelink.account.entity.Role;
+import com.ridelink.account.exception.AccountNotFoundException;
 import com.ridelink.account.exception.AdminRegistrationException;
 import com.ridelink.account.exception.DuplicateEmailException;
 import com.ridelink.account.exception.InvalidCredentialsException;
@@ -14,6 +15,8 @@ import com.ridelink.account.repository.AccountRepository;
 import com.ridelink.account.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class AccountService {
@@ -91,6 +94,12 @@ public class AccountService {
         response.setRole(account.getRole());
 
         return response;
+    }
+
+    public AccountResponse getAccountById(UUID accountId) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found"));
+        return mapToResponse(account);
     }
 
     private AccountResponse mapToResponse(Account account) {
