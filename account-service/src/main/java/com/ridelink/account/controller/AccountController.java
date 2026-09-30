@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.ResponseEntity;
 import com.ridelink.account.dto.ChangePasswordRequest;
+import com.ridelink.account.dto.AccountStatusRequest;
+import org.springframework.web.bind.annotation.PatchMapping;
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -52,5 +54,18 @@ public class AccountController {
         );
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/me/status")
+    public ResponseEntity<AccountResponse> updateCurrentAccountStatus(
+            @AuthenticationPrincipal JwtPrincipal principal,
+            @Valid @RequestBody AccountStatusRequest request) {
+
+        AccountResponse response = accountService.updateAccountStatus(
+                principal.accountId(),
+                request.getStatus()
+        );
+
+        return ResponseEntity.ok(response);
     }
 }

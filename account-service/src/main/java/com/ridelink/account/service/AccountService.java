@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.ridelink.account.dto.UpdateAccountRequest;
 import com.ridelink.account.dto.ChangePasswordRequest;
 
+
 import java.util.UUID;
 
 @Service
@@ -159,6 +160,20 @@ public class AccountService {
         );
 
         accountRepository.save(account);
+    }
+
+    public AccountResponse updateAccountStatus(UUID accountId, AccountStatus status) {
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException(
+                        "Account not found"
+                ));
+
+        account.setStatus(status);
+
+        Account updatedAccount = accountRepository.save(account);
+
+        return mapToResponse(updatedAccount);
     }
 
     private AccountResponse mapToResponse(Account account) {
