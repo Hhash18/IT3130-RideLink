@@ -74,9 +74,7 @@ class DriverServiceTest {
         request.setStatus(DriverStatus.ON_TRIP);
     }
 
-    // ---------------------------------------------------------
     // GET ALL DRIVERS
-    // ---------------------------------------------------------
 
     @Test
     void getAllDrivers_shouldReturnAllDrivers() {
@@ -94,9 +92,7 @@ class DriverServiceTest {
         verify(driverRepository, times(1)).findAll();
     }
 
-    // ---------------------------------------------------------
     // GET AVAILABLE DRIVERS
-    // ---------------------------------------------------------
 
     @Test
     void getAvailableDrivers_shouldReturnOnlyAvailableDrivers() {
@@ -127,9 +123,7 @@ class DriverServiceTest {
         verify(driverRepository, times(1)).findAll();
     }
 
-    // ---------------------------------------------------------
     // GET DRIVER BY ID
-    // ---------------------------------------------------------
 
     @Test
     void getDriverById_shouldReturnDriver() {
@@ -150,9 +144,7 @@ class DriverServiceTest {
                 .findById(1L);
     }
 
-    // ---------------------------------------------------------
     // GET DRIVER BY ID - NOT FOUND
-    // ---------------------------------------------------------
 
     @Test
     void getDriverById_shouldThrowExceptionWhenNotFound() {
@@ -169,9 +161,7 @@ class DriverServiceTest {
                 .findById(99L);
     }
 
-    // ---------------------------------------------------------
     // CREATE DRIVER
-    // ---------------------------------------------------------
 
     @Test
     void createDriver_shouldCreateAndReturnDriver() {
@@ -191,9 +181,7 @@ class DriverServiceTest {
                 .save(any(Driver.class));
     }
 
-    // ---------------------------------------------------------
     // UPDATE DRIVER
-    // ---------------------------------------------------------
 
     @Test
     void updateDriver_shouldUpdateAndReturnDriver() {
@@ -221,9 +209,7 @@ class DriverServiceTest {
                 .save(driver);
     }
 
-    // ---------------------------------------------------------
     // UPDATE DRIVER - NOT FOUND
-    // ---------------------------------------------------------
 
     @Test
     void updateDriver_shouldThrowExceptionWhenNotFound() {
@@ -240,9 +226,7 @@ class DriverServiceTest {
                 .save(any(Driver.class));
     }
 
-    // ---------------------------------------------------------
     // UPDATE AVAILABILITY
-    // ---------------------------------------------------------
 
     @Test
     void updateAvailability_shouldUpdateStatus() {
@@ -271,9 +255,7 @@ class DriverServiceTest {
                 .save(driver);
     }
 
-    // ---------------------------------------------------------
     // UPDATE AVAILABILITY - NOT FOUND
-    // ---------------------------------------------------------
 
     @Test
     void updateAvailability_shouldThrowExceptionWhenNotFound() {
@@ -293,9 +275,7 @@ class DriverServiceTest {
                 .save(any(Driver.class));
     }
 
-    // ---------------------------------------------------------
     // ASSIGN VEHICLE
-    // ---------------------------------------------------------
 
     @Test
     void assignVehicle_shouldAssignAvailableVehicle() {
@@ -329,9 +309,7 @@ class DriverServiceTest {
                 .save(driver);
     }
 
-    // ---------------------------------------------------------
     // ASSIGN VEHICLE - VEHICLE NOT AVAILABLE
-    // ---------------------------------------------------------
 
     @Test
     void assignVehicle_shouldThrowExceptionWhenVehicleUnavailable() {
@@ -353,9 +331,7 @@ class DriverServiceTest {
                 .save(any(Driver.class));
     }
 
-    // ---------------------------------------------------------
     // ASSIGN VEHICLE - DRIVER NOT FOUND
-    // ---------------------------------------------------------
 
     @Test
     void assignVehicle_shouldThrowExceptionWhenDriverNotFound() {
@@ -372,9 +348,7 @@ class DriverServiceTest {
                 .findById(anyLong());
     }
 
-    // ---------------------------------------------------------
     // ASSIGN VEHICLE - VEHICLE NOT FOUND
-    // ---------------------------------------------------------
 
     @Test
     void assignVehicle_shouldThrowExceptionWhenVehicleNotFound() {
@@ -394,9 +368,7 @@ class DriverServiceTest {
                 .save(any(Driver.class));
     }
 
-    // ---------------------------------------------------------
     // DELETE DRIVER
-    // ---------------------------------------------------------
 
     @Test
     void deleteDriver_shouldDeleteDriver() {
@@ -417,9 +389,7 @@ class DriverServiceTest {
                 .delete(driver);
     }
 
-    // ---------------------------------------------------------
     // DELETE DRIVER - NOT FOUND
-    // ---------------------------------------------------------
 
     @Test
     void deleteDriver_shouldThrowExceptionWhenNotFound() {
