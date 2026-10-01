@@ -15,9 +15,11 @@ import org.springframework.http.ResponseEntity;
 import com.ridelink.account.dto.ChangePasswordRequest;
 import com.ridelink.account.dto.AccountStatusRequest;
 import org.springframework.web.bind.annotation.PatchMapping;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping("/api/accounts")
+@SecurityRequirement(name = "bearerAuth")
 public class AccountController {
 
     private final AccountService accountService;

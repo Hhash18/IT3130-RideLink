@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.context.annotation.Configuration;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @Configuration
 @OpenAPIDefinition(
@@ -14,6 +15,8 @@ import org.springframework.context.annotation.Configuration;
                 description = "Account registration, authentication, profile and account management APIs"
         )
 )
+
+@SecurityRequirement(name = "bearerAuth")
 @SecurityScheme(
         name = "bearerAuth",
         type = SecuritySchemeType.HTTP,
