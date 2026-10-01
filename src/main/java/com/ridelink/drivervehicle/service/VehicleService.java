@@ -1,0 +1,147 @@
+package com.ridelink.drivervehicle.service;
+
+import com.ridelink.drivervehicle.dto.VehicleRequest;
+import com.ridelink.drivervehicle.dto.VehicleResponse;
+import com.ridelink.drivervehicle.entity.Vehicle;
+import com.ridelink.drivervehicle.entity.VehicleStatus;
+import com.ridelink.drivervehicle.exception.ResourceNotFoundException;
+import com.ridelink.drivervehicle.repository.VehicleRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class VehicleService {
+
+    private final VehicleRepository vehicleRepository;
+
+    public VehicleService(VehicleRepository vehicleRepository) {
+        this.vehicleRepository = vehicleRepository;
+    }
+
+    public List<VehicleResponse> getAllVehicles() {
+
+        return vehicleRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    public List<VehicleResponse> getAvailableVehicles() {
+        return vehicleRepository.findByStatus(VehicleStatus.AVAILABLE)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+}
+
+    public VehicleResponse getVehicleById(Long id) {
+
+        Vehicle vehicle = vehicleRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Vehicle not found with id: " + id
+                        )
+                );
+
+        return mapToResponse(vehicle);
+    }
+
+    public VehicleResponse createVehicle(VehicleRequest request) {
+
+        Vehicle vehicle = new Vehicle();
+
+        vehicle.setRegistrationNumber(
+                request.getRegistrationNumber()
+        );
+        vehicle.setType(request.getType());
+        vehicle.setModel(request.getModel());
+        vehicle.setCapacity(request.getCapacity());
+        vehicle.setStatus(
+        VehicleStatus.valueOf(
+                request.getStatus().trim().toUpperCase()
+        ));
+
+        Vehicle savedVehicle =
+                vehicleRepository.save(vehicle);
+
+        return mapToResponse(savedVehicle);
+    }
+
+    public VehicleResponse updateVehicle(
+            Long id,
+            VehicleRequest request) {
+
+        Vehicle existingVehicle =
+                vehicleRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Vehicle not found with id: " + id
+                                )
+                        );
+
+        existingVehicle.setRegistrationNumber(
+                request.getRegistrationNumber()
+        );
+        existingVehicle.setType(request.getType());
+        existingVehicle.setModel(request.getModel());
+        existingVehicle.setCapacity(request.getCapacity());
+        existingVehicle.setStatus(
+        VehicleStatus.valueOf(
+                request.getStatus().trim().toUpperCase()
+        ));
+
+        Vehicle updatedVehicle =
+                vehicleRepository.save(existingVehicle);
+
+        return mapToResponse(updatedVehicle);
+    }
+
+    // Update vehicle status
+public VehicleResponse updateStatus(
+        Long id,
+        VehicleStatus status) {
+
+    Vehicle vehicle = vehicleRepository.findById(id)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException(
+                            "Vehicle not found with id: " + id
+                    )
+            );
+
+    vehicle.setStatus(status);
+
+    Vehicle updatedVehicle =
+            vehicleRepository.save(vehicle);
+
+    return mapToResponse(updatedVehicle);
+}
+
+    public void deleteVehicle(Long id) {
+
+        Vehicle vehicle =
+                vehicleRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Vehicle not found with id: " + id
+                                )
+                        );
+
+        vehicleRepository.delete(vehicle);
+    }
+
+    private VehicleResponse mapToResponse(Vehicle vehicle) {
+
+        VehicleResponse response = new VehicleResponse();
+
+        response.setId(vehicle.getId());
+        response.setRegistrationNumber(
+                vehicle.getRegistrationNumber()
+        );
+        response.setType(vehicle.getType());
+        response.setModel(vehicle.getModel());
+        response.setCapacity(vehicle.getCapacity());
+        response.setStatus(vehicle.getStatus().name());
+
+        return response;
+    }
+}
