@@ -6,7 +6,7 @@ Member 3 backend, Java Spring Boot, port **8083**. Includes ride requests, picku
 
 ## Prerequisites and run
 
-Java 17+ and Maven 3.6.3+ (or use the included `./mvnw` / `mvnw.cmd`). Spring Boot 3.5.15 and springdoc 2.8.16 are pinned in `pom.xml`.
+Java 21+ and Maven 3.6.3+ (or use the included `./mvnw` / `mvnw.cmd`). Spring Boot 3.5.15 and springdoc 2.8.16 are pinned in `pom.xml`.
 
 From this folder:
 
@@ -167,6 +167,6 @@ Without demo, `account` mode verifies the Account branch's HMAC JWT format and s
 
 Run `mvn clean verify` (or `./mvnw clean verify`). Tests cover state policy, driver selection, validation, endpoint security/ownership, assignment concurrency, REST contracts/failures, signed Account JWTs, completion and fare retries. See `docs/TEST-RESULTS.md` for the verified handoff build. Test reports are generated under `target/surefire-reports`.
 
-The handoff root contains a GitHub Actions workflow. Copy it to the team's repository root `.github/workflows/` along with this service. It builds this service on Java 17; it does not deploy it or build teammates' services. No Git branch or remote CI run has been created as part of this handoff.
+The handoff root contains a GitHub Actions workflow. Copy it to the team's repository root `.github/workflows/` along with this service. It builds this service on Java 21; it does not deploy it or build teammates' services. No Git branch or remote CI run has been created as part of this handoff.
 
 See `../START-HERE.md` for the recipient's own branch/push steps. AI assistance was used to generate this implementation and documentation. The recipient should review, understand, test and disclose permitted assistance under the institute's policy. Group integration, contribution history and peer review must be completed honestly in the shared repository.

@@ -4,7 +4,7 @@
   <groupId>com.ridelink</groupId><artifactId>ride-management-service</artifactId><version>1.0.0</version>
   <name>RideLink Ride Management Service</name>
   <description>Member 3 backend: ride requests, driver assignment and lifecycle</description>
-  <properties><java.version>17</java.version></properties>
+  <properties><java.version>21</java.version></properties>
   <dependencies>
     <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-web</artifactId></dependency>
     <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-data-jpa</artifactId></dependency>
