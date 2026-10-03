@@ -39,22 +39,33 @@ public class SecurityConfig {
     @Bean @Profile("!demo")
     SecurityFilterChain jwtSecurity(HttpSecurity http) throws Exception {
         var roles = new JwtGrantedAuthoritiesConverter();
-        roles.setAuthoritiesClaimName("roles"); roles.setAuthorityPrefix("ROLE_");
+        roles.setAuthoritiesClaimName("role"); roles.setAuthorityPrefix("ROLE_");
         var converter = new JwtAuthenticationConverter(); converter.setJwtGrantedAuthoritiesConverter(roles);
         return common(http).oauth2ResourceServer(o -> o.jwt(j -> j.jwtAuthenticationConverter(converter))
                 .authenticationEntryPoint((r,s,ex) -> error(r,s,401,"UNAUTHORIZED","A valid bearer token is required"))
                 .accessDeniedHandler((r,s,ex) -> error(r,s,403,"FORBIDDEN","Access denied"))).build();
     }
     @Bean @Profile("!demo")
-    JwtDecoder jwtDecoder(@Value("${ridelink.security.jwk-set-uri}") String jwks,
-            @Value("${ridelink.security.issuer}") String issuer,
-            @Value("${ridelink.security.audience}") String audience) {
-        var decoder = NimbusJwtDecoder.withJwkSetUri(jwks).build();
-        OAuth2TokenValidator<Jwt> claims = jwt -> jwt.getAudience().contains(audience)
-                && jwt.getSubject() != null && !jwt.getSubject().isBlank() && jwt.getExpiresAt() != null
+    JwtDecoder jwtDecoder(@Value("${ridelink.security.jwt-secret}") String secret) {
+        // Match Account JwtService: raw UTF-8 secret, JJWT's key-length-based HMAC algorithm.
+        byte[] keyBytes = secret.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        if (secret.isBlank() || keyBytes.length < 32) {
+            throw new IllegalArgumentException("JWT_SECRET must match Account and contain at least 32 UTF-8 bytes");
+        }
+        var algorithm = keyBytes.length >= 64
+                ? org.springframework.security.oauth2.jose.jws.MacAlgorithm.HS512
+                : keyBytes.length >= 48
+                    ? org.springframework.security.oauth2.jose.jws.MacAlgorithm.HS384
+                    : org.springframework.security.oauth2.jose.jws.MacAlgorithm.HS256;
+        var key = new javax.crypto.spec.SecretKeySpec(keyBytes, algorithm.getName().replace("HS", "HmacSHA"));
+        var decoder = NimbusJwtDecoder.withSecretKey(key).macAlgorithm(algorithm).build();
+        OAuth2TokenValidator<Jwt> claims = jwt -> jwt.getSubject() != null
+                && !jwt.getSubject().isBlank() && jwt.getSubject().length() <= 100
+                && jwt.getExpiresAt() != null
                 ? OAuth2TokenValidatorResult.success()
-                : OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token", "Required token claims missing or invalid", null));
-        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(JwtValidators.createDefaultWithIssuer(issuer), claims));
+                : OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token", "Required identity or expiry missing", null));
+        // Account currently does not issue iss/aud. Signature, expiry/nbf and identity are checked.
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(JwtValidators.createDefault(), claims));
         return decoder;
     }
     @Bean @Profile("demo")

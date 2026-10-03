@@ -5,3 +5,8 @@
 .idea/
 *.iml
 .DS_Store
+
+# Ignore local secrets, retain shareable configuration templates.
+.env.*
+!.env.example
+!src/main/resources/application.properties

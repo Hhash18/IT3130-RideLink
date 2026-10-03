@@ -5,7 +5,7 @@
 ```mermaid
 flowchart LR
     Client[Swagger / Postman] --> Account[Account Service - Member 1]
-    Account -. issues JWT / public JWKS .-> Client
+    Account -. issues HMAC JWT .-> Client
     Client --> Fare[Fare and Payment Service - Member 4]
     Ride[Ride Management - Member 3] -->|estimate / finalize| Fare
     Fare -->|REST read completed ride| Ride
@@ -55,8 +55,8 @@ Idempotency keys identify payment intent per ride. Replaying one returns the exi
 
 ## Verification and limits
 
-Tests cover documented fare boundaries; invalid trip data and states; complete API workflows; failed attempts/retries; duplicate rejection; ownership on fares/payments/receipts; parallel payment requests; outbound bearer propagation and dependency failures; real JWT signature, issuer, audience and expiry verification; and OpenAPI generation. H2 persistence uses Flyway migrations with schema validation.
+Tests cover documented fare boundaries; invalid trip data and states; complete API workflows; failed attempts/retries; duplicate rejection; ownership on fares/payments/receipts; parallel payment requests; outbound bearer propagation and dependency failures; Account-format JWT signature, expiry, identity and role verification; and OpenAPI generation. H2 persistence uses Flyway migrations with schema validation.
 
-No real maps, passenger data, payment provider, refunds or distributed transaction is involved. Fixed rates, a shared JWT audience, integer duration and the proposed Ride response are documented assumptions to agree with the group. Git history, remote CI and integration with the other three services must be completed in the actual shared repository.
+No real maps, passenger data, payment provider, refunds or distributed transaction is involved. Fixed rates, a shared HMAC JWT contract, integer duration and the proposed Ride response are documented assumptions to agree with the group. Git history, remote CI and integration with the other three services must be completed in the actual shared repository.
 
 References used for configuration: [Spring Security JWT resource server](https://docs.spring.io/spring-security/reference/6.5/servlet/oauth2/resource-server/jwt.html), [springdoc compatibility](https://springdoc.org/v2/), and the supplied RideLink assignment brief.

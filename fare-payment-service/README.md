@@ -119,40 +119,45 @@ Validation returns 400; missing/invalid credentials 401; denied access 403; miss
 
 Import `postman/Fare-Payment-Demo.postman_collection.json` and `postman/Fare-Payment-Demo.postman_environment.json`. Set the environment's `demoPassword` locally to your chosen password. Select that environment, start with a fresh demo database, and run the collection in order. It generates request keys and stores payment IDs automatically. It demonstrates estimates, final fares, unpaid status, a decline, successful retry, idempotent replay, receipts, access denial, invalid input, incomplete rides and duplicate-payment rejection. Do not export populated passwords or tokens.
 
-The matching **Integration** collection/environment uses bearer tokens. Set actual completed/active ride IDs, `passengerToken`, `otherPassengerToken` and `serviceToken`, and use a fresh completed unpaid ride. Its three roles and ride ownership must match the contracts below. This collection is ready for integration; no claim is made that your teammates' services have been tested.
+The matching **Integration** collection/environment uses bearer tokens. Set actual completed/active ride IDs, `passengerToken`, `otherPassengerToken` and `adminToken`, and use a fresh completed unpaid ride. Its three roles and ride ownership must match the contracts below. This collection is ready for integration; no claim is made that your teammates' services have been tested.
 
 ## Connecting the team services
 
-Run without `demo` to enable RSA-signed Account JWT verification and the real REST Ride client:
+Normal mode now verifies the **current Account Service's HMAC JWT format** (singular `role`, account ID in `sub`, `email`, `iat`, `exp`). No JWKS endpoint is required. Supply exactly the same raw UTF-8 `JWT_SECRET` used by Account and Ride; do not generate a different secret just for Fare.
 
 ```sh
-export JWT_ISSUER='http://localhost:8081'
-export JWT_JWK_SET_URI='http://localhost:8081/.well-known/jwks.json'
-export JWT_AUDIENCE='ridelink'
+read -r -s JWT_SECRET
+export JWT_SECRET
 export RIDE_SERVICE_URL='http://localhost:8083'
 mvn spring-boot:run
 ```
 
-Start Account and Ride Management first for the integrated workflow. Fare & Payment can start independently; finalization requires Ride availability, and token verification requires accessible Account public keys on first use. The service owns only its own H2 database and never reads another service's tables.
+After `read`, enter the existing team secret and press Enter. Normal mode fails fast if it is blank or shorter than 32 UTF-8 bytes. Never put its real value in properties, Postman exports, command examples or Git. Demo mode still uses only `DEMO_PASSWORD` and requires no JWT secret.
 
-JWTs must have a valid RS256 signature, matching `iss`, an `aud` containing `ridelink`, a nonblank `sub` (the stable account ID), an unexpired `exp`, and `roles` such as `["PASSENGER"]`, `["ADMIN"]` or `["SERVICE"]`. Standard timestamp validation includes Spring Security's clock-skew tolerance. Fare finalization forwards the caller's JWT to Ride Management; that service must accept the shared audience and allow the trusted SERVICE/ADMIN role to read the trip. Coordinate token claims and route names with Members 1 and 3; see [contracts](docs/INTEGRATION.md).
+The decoder matches Account's JJWT algorithm selection: 32–47 bytes → HS256; 48–63 → HS384; 64+ → HS512. **The current Driver Service accepts only HS256. For compatibility across all four current services, use the same 32–47-byte secret and keep Ride in `JWT_MODE=account`, or have the Driver owner align its decoder before using a longer secret.** Byte length means the UTF-8 length of the actual secret string, not the decoded length of a Base64-looking value. Do not rotate an existing shared secret independently.
 
-| Variable | Default / use |
+Fare checks the signature, expiry/standard timestamp rules, nonblank subject (max 100 characters), and operation/ownership permissions. Account currently does not issue `iss` or `aud`, so those claims are not required. The subject must match the passenger ID stored by Ride. `role` is a string such as `PASSENGER`, `DRIVER` or `ADMIN`; the current Account service does not issue SERVICE roles. Use an Account-issued **ADMIN token** for final fare creation. SERVICE support remains available for a future explicitly trusted service identity; it is not required for the current demo or group integration.
+
+Finalization forwards that ADMIN token to Ride Management's `GET /api/rides/{id}`. Ride must use the same secret and Account mode. See [contracts and team checks](docs/INTEGRATION.md).
+
+| Configuration | Default / use |
 |---|---|
-| `PORT` | 8084 |
+| `PORT` | Fare runs on 8084 |
 | `DB_URL` | Local H2 file under `./data` |
-| `DB_USERNAME` / `DB_PASSWORD` | H2 embedded `sa` / empty; override for your environment |
-| `JWT_ISSUER` | `http://localhost:8081` |
-| `JWT_JWK_SET_URI` | `http://localhost:8081/.well-known/jwks.json` |
-| `JWT_AUDIENCE` | `ridelink` |
+| `DB_USERNAME` / `DB_PASSWORD` | Embedded H2 `sa` / empty; override if needed |
+| `JWT_SECRET` | Required only in normal mode; must match Account/Ride |
 | `RIDE_SERVICE_URL` | `http://localhost:8083` |
 | `DEMO_PASSWORD` | Required only for demo; no default |
 
-This project ships an H2 driver/schema. A different database requires adding its driver/Flyway module and verifying migrations. Do not point it at another service's database. The demo profile is for local demonstrations only; use JWT authentication for integration.
+The inspected Account branch runs on **8082**, not 8081. Fare does not call Account for token verification; it verifies signatures locally. Driver's port must be confirmed by its owner because its application properties are not tracked. Set Ride's `DRIVER_SERVICE_URL` to the actual Driver address, not Account's 8082 port. Each service must use a distinct port when running on one machine.
+
+Start Account and Ride Management for the live workflow (Ride also needs Driver/Fare for its own workflows). All services can start independently with their required configuration; calls still require the corresponding dependency to be running. When running on different machines, `localhost` refers to each machine itself—use the correct reachable service address.
+
+This service keeps its own H2 database; other services may use MySQL. They communicate through REST, never through shared tables. Switching this service to another database requires its driver/Flyway support and verified migration changes. No database switch is necessary for API integration.
 
 ## Tests and CI
 
-`mvn verify` runs calculation/service unit tests, real REST-client tests against a local HTTP server, database/API tests, concurrent-payment tests and signed-JWT security tests. Tests use isolated in-memory databases and generated test signing keys. Test results are under `target/surefire-reports/`. The build produces `target/fare-payment-service-1.0.0.jar`.
+`mvn verify` runs calculation/service unit tests, real REST-client tests against a local HTTP server, database/API tests, concurrent-payment tests and Account-compatible signed-JWT security tests. Tests use isolated in-memory databases and generated test signing secrets. Test results are under `target/surefire-reports/`. Tests generate tokens with the same JJWT 0.12.6 library as Account, including HMAC algorithm boundaries, ADMIN token forwarding to a local Ride HTTP stub, and a passenger payment/receipt workflow. The build produces `target/fare-payment-service-1.0.0.jar`.
 
 The root `.github/workflows/fare-payment-ci.yml` builds and tests this service on push/PR and uploads test reports. It is scoped to this service; the other members need their own jobs or an agreed build matrix. No remote CI run, Git contribution history or group-wide integration is fabricated here.
 

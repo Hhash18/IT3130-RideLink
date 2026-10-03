@@ -2,7 +2,7 @@
   "info": {
     "name": "RideLink Fare & Payment - Integration",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Use real Account and Ride services, an unpaid completed ride and a non-completed ride. Populate bearer tokens locally. Run in order."
+    "description": "Use real Account and Ride services with the same JWT_SECRET. Supply Account-issued passengerToken, otherPassengerToken and adminToken (singular role claim). Requires a fresh unpaid completed ride. Run in order."
   },
   "item": [
     {
@@ -113,7 +113,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "{{serviceToken}}",
+              "value": "{{adminToken}}",
               "type": "string"
             }
           ]
@@ -143,7 +143,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "{{serviceToken}}",
+              "value": "{{adminToken}}",
               "type": "string"
             }
           ]
