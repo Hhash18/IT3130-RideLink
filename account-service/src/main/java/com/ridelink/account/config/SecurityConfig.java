@@ -1,5 +1,6 @@
 package com.ridelink.account.config;
 
+import jakarta.servlet.DispatcherType;
 import com.ridelink.account.security.JwtAuthenticationFilter;
 import com.ridelink.account.security.JwtService;
 import org.springframework.context.annotation.Bean;
@@ -41,6 +42,7 @@ public class SecurityConfig {
                         )
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/auth/register",

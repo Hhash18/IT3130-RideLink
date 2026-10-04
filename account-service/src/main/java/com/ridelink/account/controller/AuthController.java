@@ -6,6 +6,8 @@ import com.ridelink.account.dto.LoginResponse;
 import com.ridelink.account.dto.RegisterRequest;
 import com.ridelink.account.service.AccountService;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,12 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Account registered"),
+            @ApiResponse(responseCode = "400", description = "Request validation failed"),
+            @ApiResponse(responseCode = "403", description = "Public registration cannot create an admin account"),
+            @ApiResponse(responseCode = "409", description = "An account with this email already exists")
+    })
     public ResponseEntity<AccountResponse> register(
             @Valid @RequestBody RegisterRequest request) {
 
@@ -31,6 +39,11 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Login successful"),
+            @ApiResponse(responseCode = "400", description = "Request validation failed"),
+            @ApiResponse(responseCode = "401", description = "Invalid email or password")
+    })
     public ResponseEntity<LoginResponse> login(
             @Valid @RequestBody LoginRequest request) {
 

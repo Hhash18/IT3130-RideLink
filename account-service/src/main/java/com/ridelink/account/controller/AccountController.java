@@ -16,6 +16,8 @@ import com.ridelink.account.dto.ChangePasswordRequest;
 import com.ridelink.account.dto.AccountStatusRequest;
 import org.springframework.web.bind.annotation.PatchMapping;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -29,12 +31,24 @@ public class AccountController {
     }
 
     @GetMapping("/me")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Current account retrieved"),
+            @ApiResponse(responseCode = "401", description = "Authentication is required"),
+            @ApiResponse(responseCode = "404", description = "Account not found")
+    })
     public AccountResponse getCurrentAccount(
             @AuthenticationPrincipal JwtPrincipal principal) {
         return accountService.getAccountById(principal.accountId());
     }
 
     @PutMapping("/me")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Account profile updated"),
+            @ApiResponse(responseCode = "400", description = "Request validation failed"),
+            @ApiResponse(responseCode = "401", description = "Authentication is required"),
+            @ApiResponse(responseCode = "404", description = "Account not found"),
+            @ApiResponse(responseCode = "409", description = "An account with this email already exists")
+    })
     public AccountResponse updateCurrentAccount(
             @AuthenticationPrincipal JwtPrincipal principal,
             @Valid @RequestBody UpdateAccountRequest request) {
@@ -46,6 +60,12 @@ public class AccountController {
     }
 
     @PutMapping("/me/password")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Password changed"),
+            @ApiResponse(responseCode = "400", description = "Request validation failed"),
+            @ApiResponse(responseCode = "401", description = "Current password is incorrect or authentication is required"),
+            @ApiResponse(responseCode = "404", description = "Account not found")
+    })
     public ResponseEntity<Void> changePassword(
             @AuthenticationPrincipal JwtPrincipal principal,
             @Valid @RequestBody ChangePasswordRequest request) {
@@ -59,6 +79,12 @@ public class AccountController {
     }
 
     @PatchMapping("/me/status")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Current account status updated"),
+            @ApiResponse(responseCode = "400", description = "Request validation failed"),
+            @ApiResponse(responseCode = "401", description = "Authentication is required"),
+            @ApiResponse(responseCode = "404", description = "Account not found")
+    })
     public ResponseEntity<AccountResponse> updateCurrentAccountStatus(
             @AuthenticationPrincipal JwtPrincipal principal,
             @Valid @RequestBody AccountStatusRequest request) {
