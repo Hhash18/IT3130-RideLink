@@ -2,7 +2,7 @@
 
 Member 3 backend, Java Spring Boot, port **8083**. Includes ride requests, pickup/destination and simulated metrics, deterministic driver assignment, acceptance/start/completion/cancellation, authorized ride retrieval, persistence and REST integrations. No frontend, real maps or real payments.
 
-**Start with the standalone demo. Live group integration needs JWT alignment: the current Account branch issues HMAC tokens with `role`, while the existing Fare service expects RSA/JWKS tokens with `roles`, issuer and audience. See [integration notes](docs/INTEGRATION.md).**
+**Start with the standalone demo. For live integration, Account, Ride and Fare use HMAC tokens with a singular `role` claim and a shared `JWT_SECRET`. See [integration notes](docs/INTEGRATION.md) for configuration.**
 
 ## Prerequisites and run
 
@@ -152,7 +152,7 @@ The Integration collection uses bearer tokens and the same endpoints. Configure 
 | PORT | 8083 |
 | DB_URL | Embedded H2 file |
 | DB_USERNAME / DB_PASSWORD | Embedded H2 `sa` / empty; override externally |
-| DRIVER_SERVICE_URL | `http://localhost:8082` |
+| DRIVER_SERVICE_URL | `http://localhost:8081` |
 | FARE_SERVICE_URL | `http://localhost:8084` |
 | DEMO_PASSWORD | Required for demo only |
 | JWT_MODE | `account` or `jwks`; default `account` |
@@ -161,7 +161,7 @@ The Integration collection uses bearer tokens and the same endpoints. Configure 
 | JWT_ISSUER | JWKS mode: required issuer |
 | JWT_AUDIENCE | JWKS mode: default `ridelink` |
 
-Without demo, `account` mode verifies the Account branch's HMAC JWT format and singular `role` claim. JJWT chooses HS256/384/512 based on secret length; this decoder follows the same 32/48/64-byte thresholds. `jwks` mode verifies RS256 public keys, issuer, expiry, audience and plural `roles` for the contract used by Fare. Neither mode creates accounts or issues tokens. All modes enforce role and record-level permissions.
+Without demo, `account` mode verifies the Account branch's HMAC JWT format and singular `role` claim. JJWT chooses HS256/384/512 based on secret length; this decoder follows the same 32/48/64-byte thresholds. `jwks` mode verifies RS256 public keys, issuer, expiry, audience and plural `roles` for an optional alternative identity provider. Neither mode creates accounts or issues tokens. All modes enforce role and record-level permissions.
 
 ## Build, tests, CI and handoff
 

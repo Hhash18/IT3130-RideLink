@@ -1,20 +1,12 @@
 # Team integration contracts and known gaps
 
-Inspected on 2026-09-30:
-- Account branch: `1fffcb8` (HMAC token, `sub` account ID, `email`, singular `role`, `iat`, `exp`).
-- Driver & Vehicle branch: `origin/feature/driver-vehicle-service`; available endpoint returns operational numeric IDs, email, serviceArea, status and vehicleId.
-- Fare & Payment branch: `a279254` (RSA/JWKS, plural roles, issuer and audience).
+## Authentication in the merged project
 
-These branches were inspected read-only. This handoff does not modify them or claim that the complete team system has passed live integration.
+Account issues HMAC tokens with `sub` (account ID), `email`, singular `role`, `iat` and `exp`. Fare & Payment now accepts this format. Configure Ride with `JWT_MODE=account` and supply the same externally managed `JWT_SECRET` to all four services. Use a randomly generated secret of 32–47 UTF-8 bytes because the current Driver decoder supports HS256; Account, Ride and Fare also support longer HMAC keys but Driver does not.
 
-## Authentication mismatch to resolve before group demonstration
+ADMIN can finalize fares; the Account enum currently does not issue SERVICE roles. Ride forwards the caller's bearer token when communicating with Driver and Fare. The alternative Ride JWKS mode is not used by the current Account service.
 
-Account currently signs HMAC JWTs and does not issue the JWKS/issuer/audience contract expected by Fare. Ride supports either configured format; it does not translate or forge tokens. Because it forwards the caller's token to Fare, choosing `JWT_MODE=account` alone does NOT make the current Fare branch accept Account tokens.
-
-Agree one group contract:
-
-1. Keep the current Account format. Configure Ride with `JWT_MODE=account` and the externally supplied shared `JWT_SECRET`. Member 4 must update Fare verification to the same algorithm/claims. ADMIN is sufficient to finalize fares; the current Account enum does not issue SERVICE roles.
-2. Adopt the existing Fare RSA contract. Account must issue RS256 JWTs with `roles`, `iss`, `aud`, `sub`, `email` and `exp`, and expose JWKS. Configure Ride with `JWT_MODE=jwks` and matching issuer/JWKS/audience, and align Fare with it.
+Default ports are Driver 8081, Account 8082, Ride 8083 and Fare 8084. Each service owns its database. Component tests do not establish that the complete system has passed a live integration run.
 
 Driver operational email must match the Account driver's signed email. Do not assume numeric operational driver ID equals Account ID. Driver's current response has no accountId. Do not allow users to alter their operational email to impersonate another account; profile creation/update protection belongs to the Driver/Account owners.
 
@@ -31,7 +23,7 @@ Example response:
 [{"id":1,"email":"driver@example.test","status":"AVAILABLE","serviceArea":"Colombo","vehicleId":101}]
 ```
 
-Extra fields are ignored. Candidates without a matching area, vehicle or email are excluded. Lowest operational ID wins among locally unreserved candidates. Service URLs/ports are configurable; the actual Driver port must be confirmed by its owner. Ride stores reservations locally; it does not mutate the external availability API. The current Driver branch's GET/PATCH APIs offer no atomic lease. If the team later adds reservations, agree an atomic reserve/release contract and recovery semantics before changing this adapter.
+Extra fields are ignored. Candidates without a matching area, vehicle or email are excluded. Lowest operational ID wins among locally unreserved candidates. Service URLs/ports are configurable; the default Driver port is 8081. Ride stores reservations locally; it does not mutate the external availability API. The current Driver branch's GET/PATCH APIs offer no atomic lease. If the team later adds reservations, agree an atomic reserve/release contract and recovery semantics before changing this adapter.
 
 ## Ride → Fare estimate
 
