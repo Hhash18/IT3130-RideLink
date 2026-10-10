@@ -2,9 +2,9 @@
 
 ## Authentication in the merged project
 
-Account issues HMAC tokens with `sub` (account ID), `email`, singular `role`, `iat` and `exp`. Fare & Payment now accepts this format. Configure Ride with `JWT_MODE=account` and supply the same externally managed `JWT_SECRET` to all four services. Use a randomly generated secret of 32–47 UTF-8 bytes because the current Driver decoder supports HS256; Account, Ride and Fare also support longer HMAC keys but Driver does not.
+Account issues HMAC tokens with `sub` (UUID account ID), `email`, singular `role`, `iat` and `exp`. Ride, Fare and Driver verify the same format. Supply one shared `JWT_SECRET` to all services: 32–47 UTF-8 bytes selects HS256, 48–63 HS384, and 64+ HS512. Ride no longer has a separate JWT mode or JWKS configuration.
 
-ADMIN can finalize fares; the Account enum currently does not issue SERVICE roles. Ride forwards the caller's bearer token when communicating with Driver and Fare. The alternative Ride JWKS mode is not used by the current Account service.
+ADMIN can finalize fares; Account currently does not issue SERVICE roles. Ride forwards the caller's bearer token to Driver and Fare, and Fare forwards it back to Ride for the completed-ride lookup.
 
 Default ports are Driver 8081, Account 8082, Ride 8083 and Fare 8084. Each service owns its database. Component tests do not establish that the complete system has passed a live integration run.
 

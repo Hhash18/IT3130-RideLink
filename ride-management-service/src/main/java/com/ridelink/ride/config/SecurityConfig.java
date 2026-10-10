@@ -37,41 +37,35 @@ public class SecurityConfig {
                         .accessDeniedHandler((r, s, ex) -> error(r, s, 403, "FORBIDDEN", "Access denied")));
     }
     @Bean @Profile("!demo")
-    SecurityFilterChain jwtSecurity(HttpSecurity http, @Value("${ridelink.jwt-mode}") String mode) throws Exception {
+    SecurityFilterChain jwtSecurity(HttpSecurity http) throws Exception {
         var roles = new JwtGrantedAuthoritiesConverter();
-        roles.setAuthoritiesClaimName(mode.equals("account") ? "role" : "roles"); roles.setAuthorityPrefix("ROLE_");
+        roles.setAuthoritiesClaimName("role"); roles.setAuthorityPrefix("ROLE_");
         var converter = new JwtAuthenticationConverter(); converter.setJwtGrantedAuthoritiesConverter(roles);
         return common(http).oauth2ResourceServer(o -> o.jwt(j -> j.jwtAuthenticationConverter(converter))
                 .authenticationEntryPoint((r,s,ex) -> error(r,s,401,"UNAUTHORIZED","A valid bearer token is required"))
                 .accessDeniedHandler((r,s,ex) -> error(r,s,403,"FORBIDDEN","Access denied"))).build();
     }
     @Bean @Profile("!demo")
-    JwtDecoder jwtDecoder(@Value("${ridelink.jwt-mode}") String mode,
-            @Value("${ridelink.jwt-secret}") String secret,
-            @Value("${ridelink.jwt-jwks}") String jwks,
-            @Value("${ridelink.jwt-issuer}") String issuer,
-            @Value("${ridelink.jwt-audience}") String audience) {
-        NimbusJwtDecoder decoder;
-        OAuth2TokenValidator<Jwt> baseValidator;
-        if(mode.equals("account")) {
-            byte[] bytes=secret.getBytes(java.nio.charset.StandardCharsets.UTF_8);
-            if(bytes.length<32) throw new IllegalArgumentException("JWT_SECRET must match Account and be at least 32 UTF-8 bytes");
-            var algorithm=bytes.length>=64 ? org.springframework.security.oauth2.jose.jws.MacAlgorithm.HS512
-                    : bytes.length>=48 ? org.springframework.security.oauth2.jose.jws.MacAlgorithm.HS384
+    JwtDecoder jwtDecoder(@Value("${ridelink.security.jwt-secret}") String secret) {
+        // Match Account JwtService: raw UTF-8 secret, JJWT's key-length-based HMAC algorithm.
+        byte[] keyBytes = secret.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        if (secret.isBlank() || keyBytes.length < 32) {
+            throw new IllegalArgumentException("JWT_SECRET must match Account and contain at least 32 UTF-8 bytes");
+        }
+        var algorithm = keyBytes.length >= 64
+                ? org.springframework.security.oauth2.jose.jws.MacAlgorithm.HS512
+                : keyBytes.length >= 48
+                    ? org.springframework.security.oauth2.jose.jws.MacAlgorithm.HS384
                     : org.springframework.security.oauth2.jose.jws.MacAlgorithm.HS256;
-            decoder=NimbusJwtDecoder.withSecretKey(new javax.crypto.spec.SecretKeySpec(bytes,algorithm.getName().replace("HS","HmacSHA")))
-                    .macAlgorithm(algorithm).build();
-            baseValidator=JwtValidators.createDefault();
-        } else if(mode.equals("jwks")) {
-            decoder=NimbusJwtDecoder.withJwkSetUri(jwks).build();
-            baseValidator=JwtValidators.createDefaultWithIssuer(issuer);
-        } else throw new IllegalArgumentException("JWT_MODE must be account or jwks");
-        OAuth2TokenValidator<Jwt> required=jwt -> jwt.getSubject()!=null && !jwt.getSubject().isBlank()
-                && jwt.getSubject().length()<=100 && jwt.getExpiresAt()!=null
-                && (!mode.equals("jwks") || jwt.getAudience().contains(audience))
+        var key = new javax.crypto.spec.SecretKeySpec(keyBytes, algorithm.getName().replace("HS", "HmacSHA"));
+        var decoder = NimbusJwtDecoder.withSecretKey(key).macAlgorithm(algorithm).build();
+        OAuth2TokenValidator<Jwt> claims = jwt -> jwt.getSubject() != null
+                && !jwt.getSubject().isBlank() && jwt.getSubject().length() <= 100
+                && jwt.getExpiresAt() != null
                 ? OAuth2TokenValidatorResult.success()
-                : OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token","Missing required identity, expiry or audience",null));
-        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(baseValidator,required));
+                : OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token", "Required identity or expiry missing", null));
+        // Account currently does not issue iss/aud. Signature, expiry/nbf and identity are checked.
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(JwtValidators.createDefault(), claims));
         return decoder;
     }
     @Bean @Profile("demo")

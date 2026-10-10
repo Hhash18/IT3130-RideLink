@@ -7,7 +7,7 @@ flowchart LR
     R -->|available drivers| D[Driver and Vehicle - Member 2]
     R -->|estimate / final fare| F[Fare and Payment - Member 4]
     F -->|read completed trip| R
-    R --> DB[(Own H2: rides and dispatch_lock)]
+    R --> DB[(Own MySQL: rides and dispatch_lock)]
 ```
 
 Ride Management owns the lifecycle, trip metrics, assignment snapshot and local active reservations. It references account/driver/vehicle/fare IDs; none is a foreign key into another service's database. `rides` is the business table. `dispatch_lock` has one row used to serialize assignment decisions; it contains no Driver service data. Flyway also owns a migration-history table.
@@ -47,7 +47,7 @@ sequenceDiagram
 - State machine: `RideStatePolicy` constrains transitions. `RideService` combines those checks with ownership and row locks before mutating the entity.
 - Encapsulation: entity fields are private; lifecycle methods express named operations instead of exposing arbitrary status setters.
 - Validation: Bean Validation checks request bounds; upstream fare validation protects stored values; Jackson rejects unknown request fields and fractional integer fields.
-- Transactions: lifecycle writes are atomic; H2 constraints and locks prevent duplicate active reservations. Fare synchronization occurs outside the completion transaction to allow callback reads and independent retries.
+- Transactions: lifecycle writes are atomic; Database constraints and locks prevent duplicate active reservations. Fare synchronization occurs outside the completion transaction to allow callback reads and independent retries.
 - Security: Spring Security validates signed identities and roles, then `AccessControl` verifies record ownership and assigned-driver email.
 - BigDecimal / UUID / Instant: decimal money and metrics, stable independent ride IDs, UTC timestamps.
 - Flyway / JPA: versioned schema creation plus entity mapping and schema validation; no Hibernate auto-recreation of tables on startup.
@@ -85,4 +85,4 @@ Synchronous REST is used because an estimate and assignment need an immediate re
 
 ## Current limits
 
-Local reservations coordinate one shared Ride database, not arbitrary independent dispatchers. Embedded H2 is suited to a student demonstration; moving to another database needs its driver and migration verification. There is no refund, ride deletion, real map, notification, driver tracking stream or payment implementation. Actual metrics are simulated inputs from the authorized driver. Completion timestamps and metrics cannot be rewritten through the API. Creation has no idempotency key and each POST represents a new ride.
+Local reservations coordinate one shared Ride database, not arbitrary independent dispatchers. Normal runtime uses MySQL with its own database and user. H2 remains an explicit option for isolated demonstrations. There is no refund, ride deletion, real map, notification, driver tracking stream or payment implementation. Actual metrics are simulated inputs from the authorized driver. Completion timestamps and metrics cannot be rewritten through the API. Creation has no idempotency key and each POST represents a new ride.

@@ -9,7 +9,7 @@ flowchart LR
     Client --> Fare[Fare and Payment Service - Member 4]
     Ride[Ride Management - Member 3] -->|estimate / finalize| Fare
     Fare -->|REST read completed ride| Ride
-    Fare --> DB[(Own H2 database: fares and payments)]
+    Fare --> DB[(Own MySQL database: fares and payments)]
     Ride --> Driver[Driver and Vehicle - Member 2]
 ```
 
@@ -55,7 +55,7 @@ Idempotency keys identify payment intent per ride. Replaying one returns the exi
 
 ## Verification and limits
 
-Tests cover documented fare boundaries; invalid trip data and states; complete API workflows; failed attempts/retries; duplicate rejection; ownership on fares/payments/receipts; parallel payment requests; outbound bearer propagation and dependency failures; Account-format JWT signature, expiry, identity and role verification; and OpenAPI generation. H2 persistence uses Flyway migrations with schema validation.
+Tests cover documented fare boundaries; invalid trip data and states; complete API workflows; failed attempts/retries; duplicate rejection; ownership on fares/payments/receipts; parallel payment requests; outbound bearer propagation and dependency failures; Account-format JWT signature, expiry, identity and role verification; and OpenAPI generation. MySQL persistence uses vendor-specific Flyway migrations with schema validation; H2 remains available for isolated tests and the explicit demo profile.
 
 No real maps, passenger data, payment provider, refunds or distributed transaction is involved. Fixed rates, a shared HMAC JWT contract, integer duration and the proposed Ride response are documented assumptions to agree with the group. Git history, remote CI and integration with the other three services must be completed in the actual shared repository.
 

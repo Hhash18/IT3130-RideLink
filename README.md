@@ -45,7 +45,7 @@ flowchart LR
 - **Spring Security**
 - **Bean Validation**
 - **Maven**
-- **H2 / MySQL / SQL Server**
+- **MySQL (normal runtime), H2 (isolated tests / optional demo)**
 - **Swagger / OpenAPI**
 - **Git & GitHub**
 
@@ -57,9 +57,21 @@ Before running the project, install:
 
 - JDK 21
 - Maven 3.6.3 or later
-- SQL Server for the Driver & Vehicle service
+- Docker Desktop for the provided MySQL setup
+- Python 3 for the local startup scripts
 
-The Account service requires MySQL. Ride Management and Fare & Payment use separate H2 databases for local execution.
+All four services use separate MySQL databases and database users. See [Local MySQL and Postman guide](docs/LOCAL-MYSQL-POSTMAN.md) for the tested setup. H2 is retained only for tests and the explicit Ride/Fare `h2` profile.
+
+## Local startup and Postman
+
+From the repository root, with Docker Desktop running:
+
+```sh
+python3 scripts/local.py start
+python3 scripts/prepare-postman.py
+```
+
+Import `postman/RideLink-Full-Flow.postman_collection.json` and the generated `.local/RideLink-Local.postman_environment.json` into Postman. Select the environment and run the collection in order. See [the guide](docs/LOCAL-MYSQL-POSTMAN.md) for saved-data checks and manual service startup.
 
 ## Build and Test
 

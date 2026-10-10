@@ -38,7 +38,7 @@ API routes, database tables and fare/payment rules are unchanged by the package 
 
 ## Requirements and quick start
 
-Java 17+ is required. Use Maven 3.6.3+ or the included Maven wrapper (`./mvnw` on macOS/Linux, `mvnw.cmd` on Windows). The project uses Spring Boot 3.5.15, Spring Security, Spring Data JPA, Flyway, H2 and springdoc OpenAPI 2.8.16. Build from this service directory:
+Java 17+ is required. Use Maven 3.6.3+ or the included Maven wrapper (`./mvnw` on macOS/Linux, `mvnw.cmd` on Windows). The project uses Spring Boot 3.5.15, Spring Security, Spring Data JPA, Flyway, MySQL (H2 for tests/demo) and springdoc OpenAPI 2.8.16. Build from this service directory:
 
 ```sh
 cd fare-payment-service
@@ -50,10 +50,10 @@ For a standalone demonstration, supply a password interactively, then enable the
 ```sh
 read -r -s DEMO_PASSWORD
 export DEMO_PASSWORD
-mvn spring-boot:run -Dspring-boot.run.profiles=demo
+mvn spring-boot:run -Dspring-boot.run.profiles=demo,h2
 ```
 
-Type a password after the `read` command and press Enter; input is hidden. Alternatively set `DEMO_PASSWORD` in your IDE run configuration and select profile `demo`. The service deliberately has no committed demo password.
+Type a password after the `read` command and press Enter; input is hidden. Alternatively set `DEMO_PASSWORD` in your IDE run configuration and select profiles `demo,h2`. The service deliberately has no committed demo password.
 
 - API: `http://localhost:8084/api`
 - Swagger: `http://localhost:8084/swagger-ui.html`
@@ -69,7 +69,7 @@ Demo fixtures are an in-process test adapter, not another service:
 | `ride-demo-002` | `passenger-002` | COMPLETED | 10 km / 20 min |
 | `ride-demo-active` | `passenger-001` | IN_PROGRESS | 10 km / 20 min |
 
-By default the service persists data in `./data/fare-payment.mv.db` relative to its working directory; restarting preserves payments and receipts. Flyway applies schema migrations, and Hibernate validates the schema. To run an isolated, repeatable demo without clearing a persistent database, set `DB_URL='jdbc:h2:mem:fare-demo;DB_CLOSE_DELAY=-1'` before starting. Restart that process for a fresh Postman run. The H2 console is disabled.
+Normal execution uses MySQL database `ridelink_fare_payment_db`. Supply `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` and the shared `JWT_SECRET`, or use the [root local setup](../docs/LOCAL-MYSQL-POSTMAN.md). Flyway selects `db/migration/mysql`; Hibernate validates the schema. The explicit `h2` profile keeps existing files under `./data` and selects the unchanged H2 migrations. Existing H2 data is preserved but is not automatically copied into MySQL. Unit/API tests use isolated in-memory databases.
 
 ## Fare rule
 
@@ -134,7 +134,7 @@ mvn spring-boot:run
 
 After `read`, enter the existing team secret and press Enter. Normal mode fails fast if it is blank or shorter than 32 UTF-8 bytes. Never put its real value in properties, Postman exports, command examples or Git. Demo mode still uses only `DEMO_PASSWORD` and requires no JWT secret.
 
-The decoder matches Account's JJWT algorithm selection: 32–47 bytes → HS256; 48–63 → HS384; 64+ → HS512. **The current Driver Service accepts only HS256. For compatibility across all four current services, use the same 32–47-byte secret and keep Ride in `JWT_MODE=account`, or have the Driver owner align its decoder before using a longer secret.** Byte length means the UTF-8 length of the actual secret string, not the decoded length of a Base64-looking value. Do not rotate an existing shared secret independently.
+All services now match Account: 32–47 UTF-8 bytes → HS256; 48–63 → HS384; 64+ → HS512. Use the same raw `JWT_SECRET` in each service. Tokens contain singular `role`, subject and expiry. Do not rotate the secret for one service independently.
 
 Fare checks the signature, expiry/standard timestamp rules, nonblank subject (max 100 characters), and operation/ownership permissions. Account currently does not issue `iss` or `aud`, so those claims are not required. The subject must match the passenger ID stored by Ride. `role` is a string such as `PASSENGER`, `DRIVER` or `ADMIN`; the current Account service does not issue SERVICE roles. Use an Account-issued **ADMIN token** for final fare creation. SERVICE support remains available for a future explicitly trusted service identity; it is not required for the current demo or group integration.
 
@@ -143,8 +143,8 @@ Finalization forwards that ADMIN token to Ride Management's `GET /api/rides/{id}
 | Configuration | Default / use |
 |---|---|
 | `PORT` | Fare runs on 8084 |
-| `DB_URL` | Local H2 file under `./data` |
-| `DB_USERNAME` / `DB_PASSWORD` | Embedded H2 `sa` / empty; override if needed |
+| DB_URL | `jdbc:mysql://localhost:3306/ridelink_fare_payment_db?connectionTimeZone=UTC` |
+| DB_USERNAME / DB_PASSWORD | `ridelink_fare_payment` / required externally supplied password |
 | `JWT_SECRET` | Required only in normal mode; must match Account/Ride |
 | `RIDE_SERVICE_URL` | `http://localhost:8083` |
 | `DEMO_PASSWORD` | Required only for demo; no default |
@@ -153,7 +153,7 @@ The inspected Account branch runs on **8082**, not 8081. Fare does not call Acco
 
 Start Account and Ride Management for the live workflow (Ride also needs Driver/Fare for its own workflows). All services can start independently with their required configuration; calls still require the corresponding dependency to be running. When running on different machines, `localhost` refers to each machine itself—use the correct reachable service address.
 
-This service keeps its own H2 database; other services may use MySQL. They communicate through REST, never through shared tables. Switching this service to another database requires its driver/Flyway support and verified migration changes. No database switch is necessary for API integration.
+This service owns its MySQL database. Other services communicate through REST and never read its tables.
 
 ## Tests and CI
 

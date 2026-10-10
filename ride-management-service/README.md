@@ -14,10 +14,10 @@ From this folder:
 mvn clean verify
 read -r -s DEMO_PASSWORD
 export DEMO_PASSWORD
-mvn spring-boot:run -Dspring-boot.run.profiles=demo
+mvn spring-boot:run -Dspring-boot.run.profiles=demo,h2
 ```
 
-After `read`, type your chosen password and press Enter; it is hidden. On Windows or in IntelliJ, set `DEMO_PASSWORD` in the run configuration and select active profile `demo` instead. Do not commit the chosen password.
+After `read`, type your chosen password and press Enter; it is hidden. On Windows or in IntelliJ, set `DEMO_PASSWORD` in the run configuration and select active profiles `demo,h2` instead. Do not commit the chosen password.
 
 - Swagger UI: `http://localhost:8083/swagger-ui.html`
 - OpenAPI JSON: `http://localhost:8083/v3/api-docs`
@@ -36,7 +36,7 @@ Demo users all use the externally supplied password:
 
 Demo mode provides one available driver: ID `1`, vehicle `101`, service area `Colombo`, email `driver@example.test`. An unmatched area produces `NO_AVAILABLE_DRIVER`. The demo fare adapter uses `100 + distanceKm*60 + minutes*5`, in LKR, only to exercise the ride workflow. It does not create real records in the Fare service. Real payment and receipt APIs remain entirely in Member 4's service.
 
-The default embedded H2 database persists in `./data/ride-management.mv.db`. Keep the working directory at the service root. Flyway creates schema tables and Hibernate validates them. To use a disposable database, set `DB_URL='jdbc:h2:mem:ride-demo;DB_CLOSE_DELAY=-1'` before startup. Test databases are isolated in memory; tests do not touch demo data.
+Normal execution uses MySQL database `ridelink_ride_db`. Supply `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` and the shared `JWT_SECRET`, or use the [root local setup](../docs/LOCAL-MYSQL-POSTMAN.md). Flyway selects `db/migration/mysql`; Hibernate validates the schema. The explicit `h2` profile keeps existing files under `./data` and selects the unchanged H2 migrations. Existing H2 data is preserved but is not automatically copied into MySQL. Unit/API tests use isolated in-memory databases.
 
 ## Team-style structure
 
@@ -59,7 +59,7 @@ ride-management-service/
   src/main/resources/
     application.properties
     application-demo.properties
-    db/migration/V1__rides.sql
+    db/migration/{mysql,h2}/V1__rides.sql
   src/test/
   postman/
   docs/
@@ -150,18 +150,14 @@ The Integration collection uses bearer tokens and the same endpoints. Configure 
 | Variable | Default / purpose |
 |---|---|
 | PORT | 8083 |
-| DB_URL | Embedded H2 file |
-| DB_USERNAME / DB_PASSWORD | Embedded H2 `sa` / empty; override externally |
+| DB_URL | `jdbc:mysql://localhost:3306/ridelink_ride_db?connectionTimeZone=UTC` |
+| DB_USERNAME / DB_PASSWORD | `ridelink_ride` / required externally supplied password |
 | DRIVER_SERVICE_URL | `http://localhost:8081` |
 | FARE_SERVICE_URL | `http://localhost:8084` |
 | DEMO_PASSWORD | Required for demo only |
-| JWT_MODE | `account` or `jwks`; default `account` |
-| JWT_SECRET | Account mode: same raw UTF-8 secret as Account, minimum 32 bytes |
-| JWT_JWK_SET_URI | JWKS mode: public signing key endpoint |
-| JWT_ISSUER | JWKS mode: required issuer |
-| JWT_AUDIENCE | JWKS mode: default `ridelink` |
+| JWT_SECRET | Same raw UTF-8 secret as Account, minimum 32 bytes |
 
-Without demo, `account` mode verifies the Account branch's HMAC JWT format and singular `role` claim. JJWT chooses HS256/384/512 based on secret length; this decoder follows the same 32/48/64-byte thresholds. `jwks` mode verifies RS256 public keys, issuer, expiry, audience and plural `roles` for an optional alternative identity provider. Neither mode creates accounts or issues tokens. All modes enforce role and record-level permissions.
+Without demo, Ride verifies Account HMAC signatures, expiry and subject and maps the singular `role` claim. Ride does not issue tokens. The previous optional JWKS mode has been removed so normal authentication follows the same contract as Fare and Driver.
 
 ## Build, tests, CI and handoff
 

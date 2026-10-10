@@ -1,17 +1,17 @@
 # Member 4 integration contract
 
-Contracts were checked against Account `aa16bc0`, Ride Management `33a8d60`, and Driver & Vehicle `61e3be3` on 2026-10-03. This change updates Member 4 only. Other services and their databases are not modified.
+The merged project uses a shared Account JWT contract and four separate MySQL databases. See [local setup](../../docs/LOCAL-MYSQL-POSTMAN.md).
 
 ## Account → Fare & Payment
 
 Account currently signs tokens using `Keys.hmacShaKeyFor(secret.getBytes(UTF_8))` and JJWT `signWith(secretKey)`. Fare uses the same raw secret from the `JWT_SECRET` environment variable and matches that algorithm selection: HS256 for 32–47 bytes, HS384 for 48–63, HS512 for 64+. Missing/blank/short secrets stop normal-mode startup. There is no committed default secret.
 
-The Driver branch currently verifies HS256 only. To use all four current services together without changing Driver, provision the SAME 32–47-byte secret across Account, Driver, Ride and Fare. Ride must use `JWT_MODE=account`. Do not change an already shared secret independently. Alternatively, the Driver owner must align its algorithm verification with Account before the team uses a longer secret.
+Driver, Ride and Fare now all match Account’s HMAC algorithm selection. Supply the same raw `JWT_SECRET` to all four services.
 
 Example claim shape (not a usable token):
 
 ```json
-{"sub":"42","email":"passenger@example.test","role":"PASSENGER","iat":1791000000,"exp":1791003600}
+{"sub":"00000000-0000-4000-8000-000000000001","email":"passenger@example.test","role":"PASSENGER","iat":1791000000,"exp":1791003600}
 ```
 
 Fare validates signature, expiry/standard timestamp rules and the subject, then maps singular `role` to Spring's `ROLE_` authorities. Account does not issue issuer/audience claims, so Fare no longer requires them or a JWKS endpoint. There is no local account registration or token-issuance API. Passenger IDs returned by Ride must be the same stable Account subject string, not email or an unrelated numeric ID.
@@ -20,9 +20,7 @@ Current Account roles are PASSENGER, DRIVER and ADMIN. Use an Account-issued ADM
 
 ## Ports and clone configuration
 
-Account is configured on 8082. Fare defaults to 8084; Ride should run on 8083. Driver's current port is not present in tracked configuration—confirm it with Member 2 and configure Ride's DRIVER_SERVICE_URL explicitly. Do not send Driver API calls to Account's 8082 port.
-
-The Ride branch lacks `ride-management-service/src/main/resources/application.properties` in Git because the repository-root `.gitignore` ignores every file called application.properties. Member 3 must restore a secret-free properties template/configuration with environment placeholders. Driver also lacks tracked application configuration. Fare's own application.properties is already tracked and contains placeholders, so it remains available when merging into main. No real secrets should be added to resolve this issue.
+Driver runs on 8081, Account 8082, Ride 8083 and Fare 8084. All services include tracked configuration with environment placeholders; passwords and signing secrets are external.
 
 ## Fare & Payment → Ride Management
 

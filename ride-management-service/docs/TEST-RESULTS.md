@@ -1,5 +1,7 @@
 # Handoff verification - 2026-09-30
 
+Historical standalone handoff results. For the merged MySQL system, see [current verification](../../docs/VERIFICATION.md).
+
 Build command: `mvn -B -ntp -f ride-management-service/pom.xml verify`
 
 Result: **BUILD SUCCESS - 24 tests, 0 failures, 0 errors, 0 skipped.**
