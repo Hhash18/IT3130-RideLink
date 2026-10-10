@@ -45,7 +45,7 @@ flowchart LR
 - **Spring Security**
 - **Bean Validation**
 - **Maven**
-- **H2 / SQL Server**
+- **H2 / MySQL / SQL Server**
 - **Swagger / OpenAPI**
 - **Git & GitHub**
 
@@ -59,7 +59,7 @@ Before running the project, install:
 - Maven 3.6.3 or later
 - SQL Server for the Driver & Vehicle service
 
-The other services use H2 for local/demo execution.
+The Account service requires MySQL. Ride Management and Fare & Payment use separate H2 databases for local execution.
 
 ## Build and Test
 
@@ -76,21 +76,21 @@ From the repository root:
 ### Account Service
 
 ```powershell
-cd IT3130-RideLink\account-service
+cd account-service
 .\mvnw.cmd clean verify
 ```
 
 ### Ride Management Service
 
 ```powershell
-cd RideLink-ride-management\ride-management-service
+cd ride-management-service
 .\mvnw.cmd clean verify
 ```
 
 ### Fare & Payment Service
 
 ```powershell
-cd RideLink-fare-payment\fare-payment-service
+cd fare-payment-service
 .\mvnw.cmd clean verify
 ```
 
@@ -101,7 +101,7 @@ Run each service in a separate terminal.
 ### 1. Account Service
 
 ```powershell
-cd IT3130-RideLink\account-service
+cd account-service
 .\mvnw.cmd spring-boot:run
 ```
 
@@ -128,7 +128,7 @@ http://localhost:8081
 ### 3. Ride Management Service
 
 ```powershell
-cd RideLink-ride-management\ride-management-service
+cd ride-management-service
 .\mvnw.cmd spring-boot:run
 ```
 
@@ -141,7 +141,7 @@ http://localhost:8083
 ### 4. Fare & Payment Service
 
 ```powershell
-cd RideLink-fare-payment\fare-payment-service
+cd fare-payment-service
 .\mvnw.cmd spring-boot:run
 ```
 
@@ -185,24 +185,11 @@ Each service maintains its own data and does not directly access another microse
 
 ```text
 IT3130-RideLink/
-│
-├── src/
-│   └── Driver & Vehicle Service
-│
-├── IT3130-RideLink/
-│   └── account-service/
-│
-├── RideLink-ride-management/
-│   └── ride-management-service/
-│       ├── src/
-│       ├── docs/
-│       └── postman/
-│
-└── RideLink-fare-payment/
-    └── fare-payment-service/
-        ├── src/
-        ├── docs/
-        └── postman/
+├── pom.xml                 # Driver & Vehicle Maven project
+├── src/                    # Driver & Vehicle source
+├── account-service/
+├── ride-management-service/
+└── fare-payment-service/
 ```
 
 ## Development
@@ -217,3 +204,9 @@ The project follows a microservice architecture where each service has its own r
 **Project:** RideLink  
 **Architecture:** Microservices  
 **Backend:** Java + Spring Boot
+
+## Fare & Payment Service (Member 4)
+
+The Fare & Payment backend lives in [`fare-payment-service/`](fare-payment-service/README.md). It includes fare estimates, final fare calculation, simulated payments, payment status and receipts.
+
+See the service README for setup, Swagger, Postman examples, tests and the proposed integration contracts.
