@@ -216,9 +216,3 @@ The project follows a microservice architecture where each service has its own r
 **Project:** RideLink  
 **Architecture:** Microservices  
 **Backend:** Java + Spring Boot
-
-## Fare & Payment Service (Member 4)
-
-The Fare & Payment backend lives in [`fare-payment-service/`](fare-payment-service/README.md). It includes fare estimates, final fare calculation, simulated payments, payment status and receipts.
-
-See the service README for setup, Swagger, Postman examples, tests and the proposed integration contracts.
