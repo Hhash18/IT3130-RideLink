@@ -24,6 +24,8 @@ The provided MySQL container listens on **localhost:3308**, avoiding the existin
 
 ## Postman
 
+For separate member presentations, import `postman/RideLink-Service-Folders.postman_collection.json` instead. It organizes the same 68 requests into Account, Driver/Vehicle, Ride, and Fare/Payment folders. See [service demonstration order](SERVICE-DEMO.md) for the minimum shared setup and database commands.
+
 1. Import `postman/RideLink-Full-Flow.postman_collection.json`.
 2. Import `.local/RideLink-Local.postman_environment.json` (show hidden files to find `.local`).
 3. Select **RideLink Local (ready to test)** in Postman.
